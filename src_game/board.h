@@ -19,6 +19,7 @@ class Game;
 class Board : public QObject
 {
     Q_OBJECT
+
 public:
     explicit Board(QObject *parent = 0, Game* i_game = 0);
     Game* m_game;
@@ -56,7 +57,8 @@ signals:
      void signal_exit_added(Exit* square_obj);
      void signal_tile_erased(int row, int col);
 
-
+     void signal_pathing_set_walkable(int row, int col, bool isWalkable);
+     void signal_get_shortest_path(int c1, int r1, int c2, int r2, Enemy* targetObject);
 public slots:
     void changeRowCount(int newCount);
     void changeColCount(int newCount);
@@ -73,8 +75,11 @@ public slots:
     void placeExit(int row, int col);
 
 
+    void clear_path_data();
+    void clear_target_path_data(Enemy* targetObject);
+    void add_path_data(int c1, int r1);
+    void add_target_path_data(Enemy* targetObject, int c1, int r1);
 
-    void animate_tile_removal();
 };
 
 #endif // BOARD_H

@@ -4,5 +4,44 @@
         <file>src_qml/src_game/Square.qml</file>
         <file>src_qml/src_game/Tile.qml</file>
         <file>src_qml/src_js/BackendLogic.js</file>
+        <file>src_qml/src_game/Wall.qml</file>
+        <file>src_images/particles/particle.png</file>
+        <file>src_images/particles/particle2.png</file>
+        <file>src_images/particles/particleA.png</file>
+        <file>src_images/particles/rocketbacklit.png</file>
+        <file>src_images/particles/sparks_multi.png</file>
+        <file>src_images/particles/tracer.png</file>
+        <file>src_images/attackers/1.png</file>
+        <file>src_images/attackers/2.png</file>
+        <file>src_images/attackers/3.ico</file>
+        <file>src_images/attackers/3.png</file>
+        <file>src_images/attackers/4.png</file>
+        <file>src_images/guns/1.png</file>
+        <file>src_images/guns/2.png</file>
+        <file>src_images/projectiles/1.png</file>
+        <file>src_images/projectiles/2.png</file>
+        <file>src_images/projectiles/3.png</file>
+        <file>src_qml/src_js/FrontEndLogic.js</file>
+        <file>src_qml/src_js/core/DiagonalMovement.js</file>
+        <file>src_qml/src_js/core/Grid.js</file>
+        <file>src_qml/src_js/core/heap.js</file>
+        <file>src_qml/src_js/core/Heuristic.js</file>
+        <file>src_qml/src_js/core/Node.js</file>
+        <file>src_qml/src_js/core/Util.js</file>
+        <file>src_qml/src_js/finders/AStarFinder.js</file>
+        <file>src_qml/src_js/finders/BestFirstFinder.js</file>
+        <file>src_qml/src_js/finders/BiAStarFinder.js</file>
+        <file>src_qml/src_js/finders/BiBestFirstFinder.js</file>
+        <file>src_qml/src_js/finders/BiBreadthFirstFinder.js</file>
+        <file>src_qml/src_js/finders/BiDijkstraFinder.js</file>
+        <file>src_qml/src_js/finders/BreadthFirstFinder.js</file>
+        <file>src_qml/src_js/finders/DijkstraFinder.js</file>
+        <file>src_qml/src_js/finders/IDAStarFinder.js</file>
+        <file>src_qml/src_js/finders/JPFAlwaysMoveDiagonally.js</file>
+        <file>src_qml/src_js/finders/JPFMoveDiagonallyIfAtMostOneObstacle.js</file>
+        <file>src_qml/src_js/finders/JPFMoveDiagonallyIfNoObstacles.js</file>
+        <file>src_qml/src_js/finders/JPFNeverMoveDiagonally.js</file>
+        <file>src_qml/src_js/finders/JumpPointFinder.js</file>
+        <file>src_qml/src_js/finders/JumpPointFinderBase.js</file>
     </qresource>
 </RCC>

@@ -19,7 +19,7 @@ signals:
 
 
 public slots:
-
+    void slot_erase();
 };
 
 #endif // SQUARE_H

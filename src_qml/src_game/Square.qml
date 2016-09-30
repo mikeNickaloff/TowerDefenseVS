@@ -15,7 +15,7 @@ Rectangle {
     Behavior on width {
 
         NumberAnimation {
-            duration: 100
+            duration: (20 * backend.tile.col) + (20 * backend.tile.row)
 
         }
     }

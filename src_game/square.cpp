@@ -11,6 +11,11 @@ Square::Square(Tile *itile) : m_tile(itile)
 Square::~Square()
 {
    // qDebug() << "Attempting to erase myself";
-    emit going_to_delete();
+    delete m_tile;
+}
+
+void Square::slot_erase()
+{
+    emit this->going_to_delete();
 }
 
