@@ -21,8 +21,11 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    QQmlApplicationEngine engine;
 
+    Game* m_game = new Game;
+
+    QQmlApplicationEngine engine;
+engine.rootContext()->setContextProperty("game", m_game);
     qmlRegisterType<Board>("com.towerdefensevs", 1, 0, "Board");
     qmlRegisterType<Enemy>("com.towerdefensevs", 1, 0, "Enemy");
     qmlRegisterType<Entity>("com.towerdefensevs", 1, 0, "Entity");

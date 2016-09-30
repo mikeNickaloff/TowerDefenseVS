@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>src_qml/src_game/Square.qml</file>
         <file>src_qml/src_game/Tile.qml</file>
+        <file>src_qml/src_js/BackendLogic.js</file>
     </qresource>
 </RCC>
