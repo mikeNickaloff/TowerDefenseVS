@@ -46,3 +46,7 @@ HEADERS += \
     src_common/map.h \
     src_common/player.h \
     src_common/team.h
+
+DISTFILES += \
+    LICENSE \
+    README.md

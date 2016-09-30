@@ -11,11 +11,14 @@
 class Map;
 class Square;
 class Wall;
-class Start;
-class End;
+class Entrance;
+class Exit;
+class Wall;
 class Board;
 class Player;
 class Team;
+class Tile;
+class Square;
 class Game : public QObject
 {
     Q_OBJECT

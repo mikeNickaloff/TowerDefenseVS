@@ -14,6 +14,8 @@ void Map::create_blank_map() {
     this->colCount = 15;
     emit this->Map::rowCountChanged(rowCount);
     emit this->Map::colCountChanged(colCount);
+    emit this->Map::tileHeightChanged(50);
+    emit this->Map::tileWidthChanged(50);
     for (int i=0; i<rowCount; i++) {
         for (int j=0; j<colCount; j++) {
             bool placed = false;
