@@ -9,16 +9,9 @@
 
 
 class Map;
-class Square;
-class Wall;
-class Entrance;
-class Exit;
-class Wall;
+
 class Board;
-class Player;
-class Team;
-class Tile;
-class Square;
+
 class Game : public QObject
 {
     Q_OBJECT
@@ -26,7 +19,7 @@ class Game : public QObject
     Q_PROPERTY(int level MEMBER m_level NOTIFY levelChanged)
     Q_PROPERTY(int money MEMBER m_money NOTIFY moneyChanged)
 public:
-    Game(QObject *parent = 0, QQmlContext* i_context = 0);
+    Game(QObject *parent = 0);
     Board* m_board;
     Map* m_map;
     QQmlContext* m_context;
@@ -41,6 +34,7 @@ signals:
 public slots:
     // creates map object, too.
     void createBoard();
+    void createMap();
 
 };
 

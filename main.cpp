@@ -2,9 +2,20 @@
 #if QT_VERSION >= 0x050000
 #include <QtGui/QGuiApplication>
 #include <QtQml/QQmlApplicationEngine>
+#include <QObject>
 #else
 #endif
-#include "src_game/header.h"
+#include <QObject>
+#include "src_game/board.h"
+#include "src_game/enemy.h"
+#include "src_game/entity.h"
+#include "src_game/entrance.h"
+#include "src_game/exit.h"
+#include "src_game/projectile.h"
+#include "src_game/square.h"
+#include "src_game/tile.h"
+#include "src_game/tower.h"
+#include "src_game/wall.h"
 #include "src_common/game.h"
 int main(int argc, char *argv[])
 {
@@ -23,7 +34,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<Tile>("com.towerdefensevs", 1, 0, "Tile");
     qmlRegisterType<Tower>("com.towerdefensevs", 1, 0, "Tower");
     qmlRegisterType<Wall>("com.towerdefensevs", 1, 0, "Wall");
- engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+
 
 
 

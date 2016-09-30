@@ -1,20 +1,28 @@
-#include "game.h"
-#include "../src_game/header.h"
-#include "map.h"
 
 #include <QObject>
 #include <QQmlContext>
+
+#include "game.h"
+#include "../src_game/board.h"
+#include "map.h"
+
 #include "player.h"
 #include "team.h"
 
 
-Game::Game(QObject *parent, QQmlContext *i_context) : QObject(parent), m_context(i_context)
+Game::Game(QObject *parent) : QObject(parent)
 {
     m_level = 1;
 }
 void Game::createBoard() {
-    this->m_map = new Map(this);
+
     this->m_board = new Board(this, this);
+
+
+
+}
+void Game::createMap() {
+    this->m_map = new Map(this);
    this->connect(m_map, SIGNAL(colCountChanged(int)), m_board, SLOT(changeColCount(int)));
     this->connect(m_map, SIGNAL(tileHeightChanged(int)), m_board, SLOT(tileHeightChanged(int)));
     this->connect(m_map, SIGNAL(tileWidthChanged(int)), m_board, SLOT(tileWidthChanged(int)));
@@ -24,6 +32,4 @@ void Game::createBoard() {
     this->connect(m_map, SIGNAL(placeExit(int, int)), m_board, SLOT(placeExit(int,int)));
     this->connect(m_map, SIGNAL(placeSquare(int, int)), m_board, SLOT(placeSquare(int,int)));
     m_map->Map::create_blank_map();
-
-
 }

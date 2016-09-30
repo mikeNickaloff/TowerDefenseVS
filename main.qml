@@ -16,6 +16,9 @@ Window {
     }
     Game {
         id: game
+        Component.onCompleted: {
+
+        }
     }
     TextEdit {
         id: textEdit

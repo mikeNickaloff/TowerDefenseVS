@@ -6,8 +6,8 @@
 
 class Square;
 class Wall;
-class Start;
-class End;
+class Entrance;
+class Exit;
 
 class Map : public QObject
 {
@@ -30,8 +30,8 @@ signals:
 
      // signals sent to Game object which forwards to Board object
      void placeWall(int row, int col);
-     void placeStart(int row, int col);
-     void placeEnd(int row, int col);
+     void placeEntrance(int row, int col);
+     void placeExit(int row, int col);
      void placeSquare(int row, int col);
 
 public slots:
