@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     src_common/game.cpp \
     src_common/map.cpp \
     src_common/player.cpp \
-    src_common/team.cpp
+    src_common/team.cpp \
+    src_game/path.cpp
 
 RESOURCES += qml.qrc
 
@@ -45,7 +46,8 @@ HEADERS += \
     src_common/game.h \
     src_common/map.h \
     src_common/player.h \
-    src_common/team.h
+    src_common/team.h \
+    src_game/path.h
 
 DISTFILES += \
     LICENSE \

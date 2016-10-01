@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>src_qml/src_game/Square.qml</file>
-        <file>src_qml/src_game/Tile.qml</file>
         <file>src_qml/src_js/BackendLogic.js</file>
         <file>src_qml/src_game/Wall.qml</file>
         <file>src_images/particles/particle.png</file>
@@ -43,5 +42,8 @@
         <file>src_qml/src_js/finders/JPFNeverMoveDiagonally.js</file>
         <file>src_qml/src_js/finders/JumpPointFinder.js</file>
         <file>src_qml/src_js/finders/JumpPointFinderBase.js</file>
+        <file>src_qml/src_game/Entrance.qml</file>
+        <file>src_qml/src_game/TileTemplate.qml</file>
+        <file>src_qml/src_game/Exit.qml</file>
     </qresource>
 </RCC>

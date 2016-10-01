@@ -10,7 +10,6 @@ Square::Square(Tile *itile) : m_tile(itile)
 
 Square::~Square()
 {
-   // qDebug() << "Attempting to erase myself";
     delete m_tile;
 }
 

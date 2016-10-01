@@ -22,16 +22,39 @@ Window {
 
         game.createBoard();
 
+
+
         // dynamic object creation
         game.board.signal_square_added.connect(BackendLogic.create_square);
-
-        // pathing logic connections
-        FrontEndLogic.init_grid();
-        game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
-        game.board.signal_get_shortest_path.connect(FrontEndLogic.get_shortest_path);
+        game.board.signal_entrance_added.connect(BackendLogic.create_entrance);
+        game.board.signal_exit_added.connect(BackendLogic.create_exit);
 
         // create map
         game.createMap();
+
+        // initialize grid
+        FrontEndLogic.init_grid(game.board.numRows, game.board.numColumns);
+
+
+        // pathing logic connections
+        game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
+
+        FrontEndLogic.init_grid(game.board.numRows, game.board.numColumns);
+
+        game.board.signal_update_pathing_grid.connect(FrontEndLogic.init_grid);
+       game.board.signal_get_shortest_path.connect(FrontEndLogic.get_shortest_path);
+       game.board.signal_get_shortest_target_path.connect(FrontEndLogic.get_shortest_path);
+
+        game.board.update_walkable_states();
+
+
+
+
+
+
+     //   FrontEndLogic.get_shortest_path(0,0, 10, 10);
+        //create paths
+        game.board.populate_entry_paths();
 
 
     }

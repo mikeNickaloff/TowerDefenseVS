@@ -5,8 +5,8 @@ Rectangle {
     id: rect
     property Square backend
 
-    color: "red"
-    border.color: "black"
+    color: "#000000"
+    border.color: "#f9f0f0"
     border.width: 1
     z: 100
     function changeWidth(new_width) {

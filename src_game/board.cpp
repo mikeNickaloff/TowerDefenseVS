@@ -8,20 +8,26 @@
 #include "tile.h"
 #include "tower.h"
 #include "wall.h"
+
+#include "path.h"
 #include "../src_common/game.h"
 #include <QtDebug>
 #include <QTimer>
 #include <QPointer>
 #include <QVariant>
+#include <QThread>
 Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
-
+    numRows = 20;
+    numColumns = 20;
 }
 void Board::changeRowCount(int newCount) {
-numRows = newCount;
+    numRows = newCount;
+    emit this->signal_update_pathing_grid(numRows, numColumns);
 }
 void Board::changeColCount(int newCount) {
-numColumns = newCount;
+    numColumns = newCount;
+    emit this->signal_update_pathing_grid(numRows, numColumns);
 }
 void Board::eraseTile(int row, int col) {
     emit this->signal_tile_erased(row, col);
@@ -35,7 +41,7 @@ void Board::eraseTile(int row, int col) {
 
 void Board::tileHeightChanged(int newHeight)
 {
- tileHeight = newHeight;
+    tileHeight = newHeight;
 }
 
 void Board::tileWidthChanged(int newWidth)
@@ -53,7 +59,7 @@ void Board::placeWall(int row, int col) {
 void Board::placeSquare(int row, int col) {
     this->new_square = new Square(create_tile(row, col, tileWidth, tileHeight, true, true));
     db_tiles.insert(getIndex(row, col), new_square);
-  //  qDebug() << "Board: Got word to create new Square" << new_square;
+    //  qDebug() << "Board: Got word to create new Square" << new_square;
     emit this->signal_square_added(new_square);
     emit this->signal_pathing_set_walkable(row, col, true);
 
@@ -73,9 +79,12 @@ void Board::placeExit(int row, int col) {
     emit this->signal_pathing_set_walkable(row, col, true);
 }
 
-void Board::clear_path_data()
+void Board::clear_path_data(int from_row, int from_col)
 {
-
+    Path* path = find_path(from_row, from_col);
+    if (path) {
+        path->clear_path();
+    }
 }
 
 void Board::clear_target_path_data(Enemy *targetObject)
@@ -83,14 +92,92 @@ void Board::clear_target_path_data(Enemy *targetObject)
 
 }
 
-void Board::add_path_data(int c1, int r1)
+void Board::add_path_data(int c1, int r1, int from_row, int from_col)
 {
 
+    Path* path = find_path(from_row, from_col);
+    if (path) {
+        path->append_node(r1, c1);
+    }
+    qDebug() << "Added path Node" << c1 << r1;
 }
 
 void Board::add_target_path_data(Enemy *targetObject, int c1, int r1)
 {
 
+}
+
+void Board::update_walkable_states()
+{
+    QHash<int, QObject*>::const_iterator o;
+    o = this->db_tiles.constBegin();
+    while (o != db_tiles.constEnd()) {
+
+        Tile* tile = find_tile(getRow(o.key()), getCol(o.key()));
+        if (tile) {
+            emit this->signal_pathing_set_walkable(tile->m_row, tile->m_col, tile->m_walkable);
+        }
+        o++;
+    }
+
+}
+
+void Board::populate_entry_paths()
+{
+
+   exits.clear();
+   entrances.clear();
+    QHash<int, QObject*>::const_iterator i = this->db_tiles.constBegin();
+    while (i != db_tiles.constEnd()) {
+        Exit* ex = qobject_cast<Exit*>(i.value());
+        if (ex) {
+            exits << ex;
+        }
+        i++;
+    }
+    qDebug() << "exit count is" << exits.count();
+    i = db_tiles.constBegin();
+    while (i != db_tiles.constEnd()) {
+        //int idx = i.key();
+        Entrance* en = qobject_cast<Entrance*>(i.value());
+        if (en) {
+            entrances << en;
+        }
+
+
+        i++;
+    }
+    qDebug() << "Entrance count: " << entrances.count();
+    entrance_index = 0;
+    exit_index = -1;
+    next_exit();
+}
+
+void Board::next_exit()
+{
+    qDebug() << "GOing to next exit";
+    exit_index++;
+    if (exit_index >= exits.count()) {
+        next_entrance();
+    } else {
+        Exit* ex = exits.at(exit_index);
+        Entrance* en = entrances.at(entrance_index);
+        emit this->signal_update_pathing_grid(numRows,numColumns);
+        this->update_walkable_states();
+        emit this->signal_get_shortest_target_path(en->m_tile->m_col, en->m_tile->m_row, ex->m_tile->m_col, ex->m_tile->m_row, 0);
+    }
+}
+
+void Board::next_entrance()
+{
+    qDebug() << "Going to next entrance";
+    exit_index = -1;
+    entrance_index++;
+    if (entrance_index >= entrances.count()) {
+        // done
+    } else {
+        next_exit();
+    }
 }
 
 
@@ -143,9 +230,72 @@ Square *Board::find_square(int row, int col)
 {
     Square* sq = qobject_cast<Square*>(db_tiles.value(getIndex(row, col)));
     if (sq) {
-       return sq;
+        return sq;
     } else {
         return 0;
+    }
+    return 0;
+}
+Entrance *Board::find_entrance(int row, int col)
+{
+    Entrance* sq = qobject_cast<Entrance*>(db_tiles.value(getIndex(row, col)));
+    if (sq) {
+        return sq;
+    } else {
+        return 0;
+    }
+    return 0;
+}
+
+Exit *Board::find_exit(int row, int col)
+{
+    Exit* sq = qobject_cast<Exit*>(db_tiles.value(getIndex(row, col)));
+    if (sq) {
+        return sq;
+    } else {
+        return 0;
+    }
+    return 0;
+}
+
+Wall *Board::find_wall(int row, int col)
+{
+    Wall* sq = qobject_cast<Wall*>(db_tiles.value(getIndex(row, col)));
+    if (sq) {
+        return sq;
+    } else {
+        return 0;
+    }
+    return 0;
+}
+
+Tile *Board::find_tile(int row, int col)
+{
+    Square* sq = find_square(row, col);
+    if (sq)
+        return sq->m_tile;
+
+    Entrance* en = find_entrance(row, col);
+    if (en)
+        return en->m_tile;
+
+    Exit* ex = find_exit(row, col);
+    if (ex)
+        return ex->m_tile;
+
+    Wall* wa = find_wall(row,col);
+    if (wa)
+        return wa->m_tile;
+
+    return 0;
+}
+
+Path *Board::find_path(int row, int col)
+{
+    int idx = getIndex(row, col);
+    Path* path = db_paths.value(idx, 0);
+    if (path) {
+        return path;
     }
     return 0;
 }
