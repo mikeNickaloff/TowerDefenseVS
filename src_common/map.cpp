@@ -11,7 +11,7 @@ Map::Map(QObject *parent) : QObject(parent)
 }
 void Map::create_blank_map() {
     this->rowCount = 15;
-    this->colCount = 15;
+    this->colCount = 25;
     emit this->Map::rowCountChanged(rowCount);
     emit this->Map::colCountChanged(colCount);
     emit this->Map::tileHeightChanged(30);
@@ -21,12 +21,21 @@ void Map::create_blank_map() {
             bool placed = false;
             if ((i == 0) || (j == 0) || (i == (rowCount - 1)) || (j == (colCount - 1))) {
 
-                if ((i == 0) && ((j % 3) == 1)) { emit this->placeEntrance(i,j); placed = true; }
+                if ((i == 0) && ((j % 5) == 1)) { emit this->placeEntrance(i,j); placed = true; }
+                if (((i == 0) && (((j % 5) != 1) || ((j % 5) == 2))) || (j == 0) || (j == (colCount - 1)) || ((i == (rowCount - 1)) && (j != (rowCount * 0.5)))) { emit this->placeWall(i,j); placed = true; }
+
                 if ((i == (rowCount - 1)) && (j == qRound(rowCount * 0.5))) { emit this->placeExit(i,j); placed = true; }
-               if (!placed) {
+               /* if (!placed) {
                    emit this->placeWall(i,j);
-               }
+               } */
             }
+            if (((i % 3) == 2) && ((j % 4) == 3)) {
+                emit this->placeWall(i, j); placed = true;
+            }
+                    //else {
+             //if (((i + j) % j) > 6) { emit this->placeWall(i, j); placed = true; }
+            //}
+
             if (!placed) {
                 emit this->placeSquare(i,j);
             }

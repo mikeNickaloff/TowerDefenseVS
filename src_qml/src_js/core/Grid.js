@@ -89,7 +89,8 @@ Grid.prototype.getNodeAt = function(x, y) {
  * @return {boolean} - The walkability of the node.
  */
 Grid.prototype.isWalkableAt = function(x, y) {
-    return this.isInside(x, y) && this.nodes[y][x].walkable;
+
+    return this.isInside(x, y) && game.board.find_tile(y, x).walkable
 };
 
 
@@ -115,9 +116,6 @@ Grid.prototype.isInside = function(x, y) {
  * @param {boolean} walkable - Whether the position is walkable.
  */
 Grid.prototype.setWalkableAt = function(x, y, walkable) {
-   // if (this.nodes[y][x] == null) {
-    //    nodes[y][x] = new Node(x, y);
-   // }
     this.nodes[y][x].walkable = walkable;
 };
 

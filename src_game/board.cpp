@@ -11,6 +11,7 @@
 
 #include "path.h"
 #include "../src_common/game.h"
+#include "paththread.h"
 #include <QtDebug>
 #include <QTimer>
 #include <QPointer>
@@ -18,8 +19,12 @@
 #include <QThread>
 Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
-    numRows = 20;
-    numColumns = 20;
+    numRows = 50;
+    numColumns = 50;
+    QTimer::singleShot(5000, this, SLOT(populate_entry_paths()));
+    QTimer::singleShot(10000, this, SLOT(spawn_random_enemy()));
+    entrance_index = 0;
+
 }
 void Board::changeRowCount(int newCount) {
     numRows = newCount;
@@ -50,6 +55,7 @@ void Board::tileWidthChanged(int newWidth)
 }
 
 void Board::placeWall(int row, int col) {
+    eraseTile(row, col);
     this->new_wall = new Wall(create_tile(row, col, tileWidth, tileHeight, false, false));
     this->db_tiles.insert(getIndex(row, col), new_wall);
     emit this->signal_wall_added(new_wall);
@@ -92,12 +98,16 @@ void Board::clear_target_path_data(Enemy *targetObject)
 
 }
 
-void Board::add_path_data(int c1, int r1, int from_row, int from_col)
+void Board::add_path_data(int r1, int c1, int from_row, int from_col)
 {
 
     Path* path = find_path(from_row, from_col);
     if (path) {
         path->append_node(r1, c1);
+    } else {
+        new_path = new Path(this);
+        this->db_paths.insert(getIndex(from_row, from_col), new_path);
+        add_path_data(r1, c1, from_row, from_col);
     }
     qDebug() << "Added path Node" << c1 << r1;
 }
@@ -109,7 +119,7 @@ void Board::add_target_path_data(Enemy *targetObject, int c1, int r1)
 
 void Board::update_walkable_states()
 {
-    QHash<int, QObject*>::const_iterator o;
+    /*  QHash<int, QObject*>::const_iterator o;
     o = this->db_tiles.constBegin();
     while (o != db_tiles.constEnd()) {
 
@@ -118,15 +128,15 @@ void Board::update_walkable_states()
             emit this->signal_pathing_set_walkable(tile->m_row, tile->m_col, tile->m_walkable);
         }
         o++;
-    }
+    } */
 
 }
 
 void Board::populate_entry_paths()
 {
 
-   exits.clear();
-   entrances.clear();
+    exits.clear();
+    entrances.clear();
     QHash<int, QObject*>::const_iterator i = this->db_tiles.constBegin();
     while (i != db_tiles.constEnd()) {
         Exit* ex = qobject_cast<Exit*>(i.value());
@@ -147,10 +157,17 @@ void Board::populate_entry_paths()
 
         i++;
     }
+    foreach (Entrance* en, entrances) {
+        Path* path = find_path(en->m_tile->m_row, en->m_tile->m_col);
+        path->clear_path();
+    }
     qDebug() << "Entrance count: " << entrances.count();
+    this->m_paththread = new PathThread(this, this);
+    m_paththread->start();
     entrance_index = 0;
     exit_index = -1;
-    next_exit();
+    //next_exit();
+
 }
 
 void Board::next_exit()
@@ -180,7 +197,42 @@ void Board::next_entrance()
     }
 }
 
+void Board::changed_xy_board_translation(int new_x, int new_y)
+{
+    emit this->signal_update_xy_translation(new_x, new_y);
+}
 
+void Board::create_enemy(Tile *i_tile, int height, int width, int speed, int health, int i_type)
+{
+    new_enemy = new Enemy(this, create_entity(i_tile->m_x, i_tile->m_y, height, width), this);
+    int lastEntity = 0;
+    QList<int> list;
+    list << this->db_entities.keys();
+    if (list.count() > 0) {
+        qSort(list.begin(), list.end());
+        lastEntity = list.last();
+        lastEntity++;
+    }
+    this->db_entities[lastEntity] = new_enemy;
+    new_enemy->m_speed = speed;
+    new_enemy->m_health = health;
+    new_enemy->m_type = i_type;
+    new_path = new Path(this);
+    new_path->m_nodes << this->db_paths.value(getIndex(i_tile->m_row, i_tile->m_col))->m_nodes;
+    new_enemy->m_entity->m_path = new_path;
+    new_enemy->m_entity->m_speed = speed;
+    //new_enemy->m_entity->next_path_tile();
+   emit this->signal_enemy_added(new_enemy);
+    QTimer::singleShot(speed, new_enemy->m_entity, SLOT(next_path_tile()));
+}
+
+void Board::spawn_random_enemy()
+{
+    entrance_index++;
+    if (entrance_index >= entrances.count()) { entrance_index = 0; }
+    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1000, 1000, 1);
+       QTimer::singleShot(1000, this, SLOT(spawn_random_enemy()));
+}
 
 
 
@@ -225,6 +277,21 @@ Tile *Board::create_tile(int row, int col, int i_width, int i_height, bool i_bui
     return new_tile;
 
 }
+
+Entity *Board::create_entity(int x, int y, int height, int width)
+{
+
+    new_entity = new Entity(this, this);
+    new_entity->m_x = x;
+    new_entity->m_y = y;
+    new_entity->m_width = width;
+    new_entity->m_height = height;
+    return new_entity;
+
+}
+
+
+
 
 Square *Board::find_square(int row, int col)
 {
@@ -296,7 +363,35 @@ Path *Board::find_path(int row, int col)
     Path* path = db_paths.value(idx, 0);
     if (path) {
         return path;
+    } else {
+
+        new_path = new Path(this);
+        this->db_paths.insert(getIndex(row, col), new_path);
+        return new_path;
+
     }
     return 0;
+}
+
+QList<Tile *> Board::find_neighbors(Tile *i_tile)
+{
+    QList<Tile*> rv;
+
+    int myRow = i_tile->m_row;
+    int myCol = i_tile->m_col;
+
+    QList<int> offsets;
+    offsets << -1 << 0 << 1;
+    foreach (int r, offsets)  {
+        foreach (int c, offsets) {
+            Tile* atile = find_tile(myRow + r, myCol + c);
+            if (atile) {
+                if (((c == 0) || (r == 0)) && (c != r)) {
+                    if ((atile->m_walkable) && (!rv.contains(atile)) && (atile != i_tile)) { rv << atile; }
+                }
+            }
+        }
+    }
+    return rv;
 }
 

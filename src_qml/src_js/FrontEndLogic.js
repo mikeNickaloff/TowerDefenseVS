@@ -16,15 +16,15 @@ function get_shortest_path(row_1, col_1, row_2, col_2, targetObject) {
 
    // init_grid(game.board.numRows, game.board.numColumns);
     var finder = new AStarFinder({ allowDiagonal: false, dontCrossCorners: true });
-    var p1_walkable = grid.isWalkableAt(col_1, row_1);
-    var p2_walkable = grid.isWalkableAt(col_2, row_2);
+    //var p1_walkable = grid.isWalkableAt(col_1, row_1);
+    //var p2_walkable = grid.isWalkableAt(col_2, row_2);
 
-    grid.setWalkableAt(col_1, row_1, true);
-    grid.setWalkableAt(col_2, row_2, true);
+   // grid.setWalkableAt(col_1, row_1, true);
+   // grid.setWalkableAt(col_2, row_2, true);
     var rv = finder.findPath(col_1, row_1, col_2, row_2, grid);
 
-    grid.setWalkableAt(col_1, row_1, p1_walkable);
-    grid.setWalkableAt(col_2, row_2, p2_walkable);
+   // grid.setWalkableAt(col_1, row_1, p1_walkable);
+   // grid.setWalkableAt(col_2, row_2, p2_walkable);
 
       if (rv[2] != null) {
           if (targetObject == null) {

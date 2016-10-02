@@ -10,12 +10,7 @@ Window {
     height: 480
     title: qsTr("Hello World")
     property var m_squares: []
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            console.log(qsTr('Clicked on background. Text: "' + textEdit.text + '"'))
-        }
-    }
+
 
 
     Component.onCompleted: {
@@ -28,24 +23,28 @@ Window {
         game.board.signal_square_added.connect(BackendLogic.create_square);
         game.board.signal_entrance_added.connect(BackendLogic.create_entrance);
         game.board.signal_exit_added.connect(BackendLogic.create_exit);
-
-        // create map
-        game.createMap();
-
-        // initialize grid
-        FrontEndLogic.init_grid(game.board.numRows, game.board.numColumns);
-
-
-        // pathing logic connections
-        game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
-
-        FrontEndLogic.init_grid(game.board.numRows, game.board.numColumns);
+        game.board.signal_wall_added.connect(BackendLogic.create_wall);
+        FrontEndLogic.init_grid(50, 50);
 
         game.board.signal_update_pathing_grid.connect(FrontEndLogic.init_grid);
        game.board.signal_get_shortest_path.connect(FrontEndLogic.get_shortest_path);
        game.board.signal_get_shortest_target_path.connect(FrontEndLogic.get_shortest_path);
 
-        game.board.update_walkable_states();
+//             game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
+        // create map
+        game.createMap();
+
+        // initialize grid
+
+
+
+        // pathing logic connections
+
+
+        //FrontEndLogic.init_grid(game.board.numRows, game.board.numColumns);
+
+
+        //game.board.update_walkable_states();
 
 
 
@@ -54,27 +53,130 @@ Window {
 
      //   FrontEndLogic.get_shortest_path(0,0, 10, 10);
         //create paths
-        game.board.populate_entry_paths();
+      //  game.board.populate_entry_paths();
+
+        game.board.signal_update_xy_translation.connect(update_xy_translation_slot);
+        animation_rotate_scene.start();
+
+
+        game.board.signal_enemy_added.connect(BackendLogic.create_enemy);
+
+    }
+
+                    function update_xy_translation_slot(new_x, new_y) {
+                        bg_x_translation += new_x;
+                        bg_y_translation += new_y;
+                        animation_translate_scene.restart();
+                    }
+    SequentialAnimation {
+        id: animation_rotate_scene
+        RotationAnimation {
+            to: 20
+            duration: 1000
+            target: sceneRotation
+            property: "angle"
+            easing.type: Easing.InOutQuad
+        }
+        /* RotationAnimation {
+            to: 20
+            duration: 1000
+            target: particleSceneRotation
+            property: "angle"
+            easing.type: Easing.InOutQuad
+        } */
+    }
+    ParallelAnimation {
+        id: animation_translate_scene
+        NumberAnimation {
+            to: bg_x_translation
+            duration: 100
+            target: sceneTranslation
+            property: "x"
+        }
+        NumberAnimation {
+            to: bg_y_translation
+            duration: 100
+            target: sceneTranslation
+            property: "y"
+        }
+
+    }
+    property var bg_x_translation: 0
+    property var bg_y_translation: 0
+    Item {
+        id: background
+        width: Screen.desktopAvailableWidth * 0.85
+        height: Screen.desktopAvailableHeight * 0.85 * 0.95
+        Rectangle {
+            color: "black"
+            anchors.fill: parent
+            z: -1
+        }
+        transform: [
+            Rotation {
+                id: sceneRotation
+                axis.x: 1
+                axis.y: 0
+                axis.z: 0
+                origin.x: width / 2
+                origin.y: height / 2
+            },
+            Translate {
+                id: sceneTranslation
+                x: bg_x_translation
+                y: bg_y_translation
+            }
+        ]
+
+
+
+        anchors.top: scoreHUD.bottom
+
+
+
+
+
 
 
     }
-   Rectangle {
-       id: background
-       anchors.fill: parent
-       z: 0
-   }
-    TextEdit {
-        id: textEdit
-        text: qsTr("Enter some text...")
-        verticalAlignment: Text.AlignVCenter
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.topMargin: 20
-        Rectangle {
-            anchors.fill: parent
-            anchors.margins: -10
-            color: "transparent"
-            border.width: 1
+
+    Rectangle {
+        id: scoreHUD
+        height: background.height * 0.05
+        width: background.width
+        x: 0
+        y: 0
+        color: "transparent"
+        Item {
+            Row {
+                Text {
+                    text: "Money: $" + game.money
+                    font.family: "Consolas"
+                    horizontalAlignment: Text.AlignHCenter
+                    style: Text.Raised
+                    font.pointSize: 12
+                    width: 200
+                    styleColor: "#0aec28"
+
+                    color: "#0aec28"
+                }
+                Text {
+                    text: "Level: " + game.level
+                    font.family: "Consolas"
+                    horizontalAlignment: Text.AlignHCenter
+                    style: Text.Raised
+                    font.pointSize: 12
+                    width: 200
+                    styleColor: "#0aec28"
+
+                    color: "#0aec28"
+                }
+
+            }
         }
     }
+
+
+
+
 }

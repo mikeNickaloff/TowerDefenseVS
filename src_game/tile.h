@@ -4,7 +4,7 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
-
+#include <QPoint>
 
 class Tile : public QObject
 {
@@ -27,6 +27,10 @@ public:
     int m_height;
     int m_x;
     int m_y;
+    int distance_to_exit;
+    QList<Tile*> neighbors;
+
+    Q_INVOKABLE QPoint center();
 signals:
 
     void colChanged(int new_col);

@@ -20,7 +20,7 @@ var DiagonalMovement = Qt.include("../core/DiagonalMovement.js")
  * @param {DiagonalMovement} opt.diagonalMovement Allowed diagonal movement.
  * @param {function} opt.heuristic Heuristic function to estimate the distance
  *     (defaults to manhattan).
- * @param {integer} opt.weight Weight to apply to the heuristic to allow for suboptimal paths, 
+ * @param {integer} opt.weight Weight to apply to the heuristic to allow for suboptimal paths,
  *     in order to speed up the search.
  */
 function AStarFinder(opt) {

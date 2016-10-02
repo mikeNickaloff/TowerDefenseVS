@@ -45,5 +45,7 @@
         <file>src_qml/src_game/Entrance.qml</file>
         <file>src_qml/src_game/TileTemplate.qml</file>
         <file>src_qml/src_game/Exit.qml</file>
+        <file>src_qml/src_game/Enemy.qml</file>
+        <file>src_qml/src_game/EntityTemplate.qml</file>
     </qresource>
 </RCC>
