@@ -4,6 +4,7 @@ import com.towerdefensevs 1.0
 
 Rectangle {
     id: rect
+    color: "transparent"
     property var backend
     property var xpos
     property var ypos

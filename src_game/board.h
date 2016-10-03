@@ -18,6 +18,7 @@ class Wall;
 class Game;
 class Path;
 class PathThread;
+class Gun;
 class Board : public QObject
 {
     Q_OBJECT
@@ -43,6 +44,8 @@ public:
     Enemy* new_enemy;
 
     Path* new_path;
+
+    Gun* new_gun;
 
     QHash<int, QObject*> db_entities;
 
@@ -73,6 +76,7 @@ public:
     Q_INVOKABLE Entrance* find_entrance(int row, int col);
     Q_INVOKABLE Exit* find_exit(int row, int col);
     Q_INVOKABLE Wall* find_wall(int row, int col);
+    Q_INVOKABLE Gun* find_gun(int row, int col);
     int anim_tile_removal_row;
     int anim_tile_removal_col;
     Q_INVOKABLE Tile* find_tile(int row, int col);
@@ -87,6 +91,8 @@ signals:
 
      void signal_enemy_added(Enemy* enemy_obj);
      void signal_entity_erased(QObject* obj);
+
+     void signal_gun_added(Gun* gunObj);
 
      void signal_pathing_set_walkable(int row, int col, bool isWalkable);
      void signal_get_shortest_target_path(int c1, int r1, int c2, int r2, Enemy* targetObject);
@@ -109,6 +115,7 @@ public slots:
     void placeEntrance(int row, int col);
     void placeExit(int row, int col);
 
+    void placeGun(int row, int col, int gun_type);
 
     void clear_path_data(int from_row, int from_col);
     void clear_target_path_data(Enemy* targetObject);
@@ -128,6 +135,10 @@ public slots:
 
 
     void spawn_random_enemy();
+    void eraseEntity(int entityIndex);
+    void randomize_paths();
+
+    void place_last_gun(bool shouldPlace);
 };
 
 #endif // BOARD_H

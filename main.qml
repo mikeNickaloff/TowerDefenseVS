@@ -24,6 +24,7 @@ Window {
         game.board.signal_entrance_added.connect(BackendLogic.create_entrance);
         game.board.signal_exit_added.connect(BackendLogic.create_exit);
         game.board.signal_wall_added.connect(BackendLogic.create_wall);
+        game.board.signal_gun_added.connect(BackendLogic.create_gun);
         FrontEndLogic.init_grid(50, 50);
 
         game.board.signal_update_pathing_grid.connect(FrontEndLogic.init_grid);

@@ -21,6 +21,7 @@ public:
 
     // number of MS it takes to travel one tile
     int m_speed;
+
 signals:
 
     void typeChanged(int new_type);

@@ -15,7 +15,7 @@ Rectangle {
     Behavior on width {
 
         NumberAnimation {
-            duration: (20 * backend.tile.col) + (20 * backend.tile.row)
+            duration: backend != null ? (20 * backend.tile.col) + (20 * backend.tile.row) : 100
 
         }
     }
@@ -33,6 +33,13 @@ Rectangle {
 
                 i_have_been_erased();
             }
+        }
+    }
+    function set_selected(isSelected) {
+        if (isSelected == true) {
+         rect.color = "white";
+        } else {
+            rect.color = "black";
         }
     }
 

@@ -12,6 +12,7 @@
 #include "path.h"
 #include "../src_common/game.h"
 #include "paththread.h"
+#include "gun.h"
 #include <QtDebug>
 #include <QTimer>
 #include <QPointer>
@@ -21,7 +22,8 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
     numRows = 50;
     numColumns = 50;
-    QTimer::singleShot(5000, this, SLOT(populate_entry_paths()));
+    //populate_entry_paths();
+    QTimer::singleShot(1000, this, SLOT(populate_entry_paths()));
     QTimer::singleShot(10000, this, SLOT(spawn_random_enemy()));
     entrance_index = 0;
 
@@ -63,11 +65,13 @@ void Board::placeWall(int row, int col) {
 }
 
 void Board::placeSquare(int row, int col) {
+    eraseTile(row,col);
     this->new_square = new Square(create_tile(row, col, tileWidth, tileHeight, true, true));
     db_tiles.insert(getIndex(row, col), new_square);
     //  qDebug() << "Board: Got word to create new Square" << new_square;
     emit this->signal_square_added(new_square);
     emit this->signal_pathing_set_walkable(row, col, true);
+    this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
 
 }
 
@@ -83,6 +87,17 @@ void Board::placeExit(int row, int col) {
     db_tiles.insert(getIndex(row, col), new_exit);
     emit this->signal_exit_added(new_exit);
     emit this->signal_pathing_set_walkable(row, col, true);
+}
+
+void Board::placeGun(int row, int col, int gun_type)
+{
+    eraseTile(row, col);
+    this->new_gun = new Gun(create_tile(row, col, tileWidth, tileHeight, false, false));
+    db_tiles.insert(getIndex(row, col), new_gun);
+   new_gun->m_type = gun_type;
+   this->randomize_paths();
+
+
 }
 
 void Board::clear_path_data(int from_row, int from_col)
@@ -105,7 +120,7 @@ void Board::add_path_data(int r1, int c1, int from_row, int from_col)
     if (path) {
         path->append_node(r1, c1);
     } else {
-        new_path = new Path(this);
+        new_path = new Path(this, this);
         this->db_paths.insert(getIndex(from_row, from_col), new_path);
         add_path_data(r1, c1, from_row, from_col);
     }
@@ -143,6 +158,8 @@ void Board::populate_entry_paths()
         if (ex) {
             exits << ex;
         }
+        Path* path = this->find_path(getRow(i.key()), getCol(i.key()));
+        path->clear_path();
         i++;
     }
     qDebug() << "exit count is" << exits.count();
@@ -161,11 +178,14 @@ void Board::populate_entry_paths()
         Path* path = find_path(en->m_tile->m_row, en->m_tile->m_col);
         path->clear_path();
     }
+
     qDebug() << "Entrance count: " << entrances.count();
     this->m_paththread = new PathThread(this, this);
-    m_paththread->start();
+    connect(m_paththread, SIGNAL(place_last_gun(bool)), this, SLOT(place_last_gun(bool)));
+    //m_paththread->start();
     entrance_index = 0;
     exit_index = -1;
+    randomize_paths();
     //next_exit();
 
 }
@@ -217,10 +237,11 @@ void Board::create_enemy(Tile *i_tile, int height, int width, int speed, int hea
     new_enemy->m_speed = speed;
     new_enemy->m_health = health;
     new_enemy->m_type = i_type;
-    new_path = new Path(this);
+    new_path = new Path(this, this);
     new_path->m_nodes << this->db_paths.value(getIndex(i_tile->m_row, i_tile->m_col))->m_nodes;
     new_enemy->m_entity->m_path = new_path;
     new_enemy->m_entity->m_speed = speed;
+    new_enemy->m_entity->m_entityIndex = lastEntity;
     //new_enemy->m_entity->next_path_tile();
    emit this->signal_enemy_added(new_enemy);
     QTimer::singleShot(speed, new_enemy->m_entity, SLOT(next_path_tile()));
@@ -231,8 +252,36 @@ void Board::spawn_random_enemy()
     entrance_index++;
     if (entrance_index >= entrances.count()) { entrance_index = 0; }
     this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1000, 1000, 1);
-       QTimer::singleShot(1000, this, SLOT(spawn_random_enemy()));
+    QTimer::singleShot(3000, this, SLOT(spawn_random_enemy()));
 }
+
+void Board::eraseEntity(int entityIndex)
+{
+    emit this->signal_entity_erased(db_entities.value(entityIndex, 0));
+    this->db_entities.remove(entityIndex);
+}
+
+void Board::randomize_paths()
+{
+    this->m_paththread->start();
+    //  QTimer::singleShot(20000, this, SLOT(randomize_paths()));
+}
+
+void Board::place_last_gun(bool shouldPlace)
+{
+
+
+    if (shouldPlace == true) {
+        if (new_gun)
+            emit this->signal_gun_added(new_gun);
+    } else {
+        if (new_gun)
+            placeSquare(new_gun->m_tile->m_row, new_gun->m_tile->m_col);
+    }
+    //eraseTile(getRow(last_tlist), getCol(last_tlist));
+ //   placeSquare(getRow(last_tlist), getCol(last_tlist));
+}
+
 
 
 
@@ -286,6 +335,7 @@ Entity *Board::create_entity(int x, int y, int height, int width)
     new_entity->m_y = y;
     new_entity->m_width = width;
     new_entity->m_height = height;
+    this->connect(new_entity, SIGNAL(completed_path(int)), this, SLOT(eraseEntity(int)));
     return new_entity;
 
 }
@@ -336,6 +386,17 @@ Wall *Board::find_wall(int row, int col)
     return 0;
 }
 
+Gun *Board::find_gun(int row, int col)
+{
+    Gun* sq = qobject_cast<Gun*>(db_tiles.value(getIndex(row, col)));
+    if (sq) {
+        return sq;
+    } else {
+        return 0;
+    }
+    return 0;
+}
+
 Tile *Board::find_tile(int row, int col)
 {
     Square* sq = find_square(row, col);
@@ -354,6 +415,10 @@ Tile *Board::find_tile(int row, int col)
     if (wa)
         return wa->m_tile;
 
+    Gun* gu = find_gun(row, col);
+    if (gu)
+        return gu->m_tile;
+
     return 0;
 }
 
@@ -365,7 +430,7 @@ Path *Board::find_path(int row, int col)
         return path;
     } else {
 
-        new_path = new Path(this);
+        new_path = new Path(this, this);
         this->db_paths.insert(getIndex(row, col), new_path);
         return new_path;
 
@@ -381,7 +446,7 @@ QList<Tile *> Board::find_neighbors(Tile *i_tile)
     int myCol = i_tile->m_col;
 
     QList<int> offsets;
-    offsets << -1 << 0 << 1;
+    offsets << 1 << 0 << -1;
     foreach (int r, offsets)  {
         foreach (int c, offsets) {
             Tile* atile = find_tile(myRow + r, myCol + c);

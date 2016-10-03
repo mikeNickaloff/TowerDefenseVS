@@ -14,6 +14,7 @@ function create_square(new_square) {
 
     game.board.signal_tile_erased.connect(sq.check_if_erased);
     sq.i_have_been_erased.connect(sq.destroy);
+    new_square.tileSelected.connect(sq.set_selected);
 
 }
 function change_tile_property(prop, val, row, col) {
@@ -81,3 +82,18 @@ function create_enemy(new_enemy) {
     sq.i_have_been_erased.connect(sq.destroy);
 }
 
+function create_gun(new_gun) {
+    if (new_gun != null) {
+    var component = Qt.createComponent("qrc:///src_qml/src_game/Gun.qml");
+    var sq = component.createObject(background, { "backend" : new_gun, "gun_type" : new_gun.type });
+    sq.x = new_gun.tile.x
+    sq.y = new_gun.tile.y
+    sq.width = new_gun.tile.width;
+    sq.height = new_gun.tile.height;
+    tiles[game.board.getIndex(new_gun.tile.row, new_gun.tile.col)] = sq;
+    sq.visible = true;
+
+    game.board.signal_tile_erased.connect(sq.check_if_erased);
+    sq.i_have_been_erased.connect(sq.destroy);
+    }
+}

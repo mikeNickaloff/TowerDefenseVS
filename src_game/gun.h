@@ -1,29 +1,28 @@
-#ifndef SQUARE_H
-#define SQUARE_H
+#ifndef GUN_H
+#define GUN_H
 
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
-
 class Tile;
-class Square : public QObject
+class Gun : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(Tile* tile MEMBER m_tile NOTIFY tileChanged)
+    Q_PROPERTY(int type MEMBER m_type NOTIFY typeChanged)
 public:
-    Square(Tile* itile = 0);
-    ~Square();
+    Gun(Tile* itile = 0);
+    ~Gun();
     Tile* m_tile;  // pointer to Tile object
     bool m_selected;
+    int m_type;
 signals:
     void tileChanged(Tile* newTile);
     void going_to_delete();
     void tileSelected(bool isSelected);
-    void signal_place_gun(int row, int col, int gun_type);
+    void typeChanged(int new_type);
 
 public slots:
     void slot_erase();
     void gotMouseClick();
-    void setSelected(bool is_selected);
 };
-
-#endif // SQUARE_H
+#endif // GUN_H

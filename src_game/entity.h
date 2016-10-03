@@ -23,12 +23,14 @@ public:
     Path* m_path;
     Board* m_board;
     int m_speed;
+    int m_entityIndex;
 
 signals:
     Q_SIGNAL  void myWidthChanged(int new_width);
       void heightChanged(int new_height);
       void xChanged(int new_x);
       void yChanged(int new_y);
+      void completed_path(int entityIndex);
 public slots:
       void set_x(int new_x) { m_x = new_x; emit xChanged(new_x); }
       void set_y(int new_y) { m_y = new_y; emit yChanged(new_y); }

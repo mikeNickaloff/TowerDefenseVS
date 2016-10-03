@@ -17,6 +17,7 @@
 #include "src_game/tower.h"
 #include "src_game/wall.h"
 #include "src_common/game.h"
+#include "src_game/gun.h"
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
@@ -37,6 +38,7 @@ engine.rootContext()->setContextProperty("game", m_game);
     qmlRegisterType<Tile>("com.towerdefensevs", 1, 0, "Tile");
     qmlRegisterType<Tower>("com.towerdefensevs", 1, 0, "Tower");
     qmlRegisterType<Wall>("com.towerdefensevs", 1, 0, "Wall");
+    qmlRegisterType<Gun>("com.towerdefensevs", 1, 0, "Gun");
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
 
