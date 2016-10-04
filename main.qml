@@ -61,6 +61,7 @@ Window {
 
 
         game.board.signal_enemy_added.connect(BackendLogic.create_enemy);
+        game.board.populate_entry_paths();
 
     }
 

@@ -21,6 +21,7 @@ void Square::slot_erase()
 void Square::gotMouseClick()
 {
 emit this->signal_place_gun(m_tile->m_row, m_tile->m_col, 1);
+   // this->setSelected(true);
 }
 
 void Square::setSelected(bool is_selected) {

@@ -25,10 +25,12 @@ void Map::create_blank_map() {
                 if (((i == 0) && (((j % 8) != 1) || ((j % 8) == 2))) || (j == 0) || (j == (colCount - 1)) || ((i == (rowCount - 1)) && (j != (rowCount * 0.5)))) { emit this->placeWall(i,j); placed = true; }
 
                 if ((i == (rowCount - 1)) && (j == qRound(rowCount * 0.5))) { emit this->placeExit(i,j); placed = true; }
+
                /* if (!placed) {
                    emit this->placeWall(i,j);
                } */
             }
+            if ((!placed) && ((((j * colCount ) + i) % 17) == 0)) { emit this->placeWall(i, j); placed = true; }
         //    if (((i % 3) == 2) && ((j % 4) == 3)) {
         //        emit this->placeWall(i, j); placed = true;
         //    }

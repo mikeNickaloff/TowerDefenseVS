@@ -19,6 +19,7 @@ Rectangle {
 
         }
     }
+
     Component.onCompleted: {
         if (backend !== null) {
             backend.tile.myWidthChanged.connect(changeWidth);

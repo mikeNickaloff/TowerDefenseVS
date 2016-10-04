@@ -23,8 +23,8 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
     numRows = 50;
     numColumns = 50;
     //populate_entry_paths();
-    QTimer::singleShot(1000, this, SLOT(populate_entry_paths()));
-    QTimer::singleShot(10000, this, SLOT(spawn_random_enemy()));
+    //QTimer::singleShot(10000, this, SLOT(populate_entry_paths()));
+
     entrance_index = 0;
 
 }
@@ -93,6 +93,7 @@ void Board::placeGun(int row, int col, int gun_type)
 {
     eraseTile(row, col);
     this->new_gun = new Gun(create_tile(row, col, tileWidth, tileHeight, false, false));
+    triggering_node = qMakePair(row, col);
     db_tiles.insert(getIndex(row, col), new_gun);
    new_gun->m_type = gun_type;
    this->randomize_paths();
@@ -181,12 +182,15 @@ void Board::populate_entry_paths()
 
     qDebug() << "Entrance count: " << entrances.count();
     this->m_paththread = new PathThread(this, this);
+    placeGun(5, 5, 1);
     connect(m_paththread, SIGNAL(place_last_gun(bool)), this, SLOT(place_last_gun(bool)));
     //m_paththread->start();
     entrance_index = 0;
     exit_index = -1;
     randomize_paths();
     //next_exit();
+
+    QTimer::singleShot(25000, this, SLOT(spawn_random_enemy()));
 
 }
 
@@ -251,8 +255,9 @@ void Board::spawn_random_enemy()
 {
     entrance_index++;
     if (entrance_index >= entrances.count()) { entrance_index = 0; }
-    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1000, 1000, 1);
-    QTimer::singleShot(3000, this, SLOT(spawn_random_enemy()));
+    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 2500, 1000, entrance_index);
+
+    QTimer::singleShot(5000, this, SLOT(spawn_random_enemy()));
 }
 
 void Board::eraseEntity(int entityIndex)
@@ -263,6 +268,7 @@ void Board::eraseEntity(int entityIndex)
 
 void Board::randomize_paths()
 {
+
     this->m_paththread->start();
     //  QTimer::singleShot(20000, this, SLOT(randomize_paths()));
 }

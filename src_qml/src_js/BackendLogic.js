@@ -86,8 +86,9 @@ function create_gun(new_gun) {
     if (new_gun != null) {
     var component = Qt.createComponent("qrc:///src_qml/src_game/Gun.qml");
     var sq = component.createObject(background, { "backend" : new_gun, "gun_type" : new_gun.type });
-    sq.x = new_gun.tile.x
-    sq.y = new_gun.tile.y
+    sq.x = new_gun.tile.x;
+    sq.y = new_gun.tile.y;
+        sq.opacity = 1.0;
     sq.width = new_gun.tile.width;
     sq.height = new_gun.tile.height;
     tiles[game.board.getIndex(new_gun.tile.row, new_gun.tile.col)] = sq;

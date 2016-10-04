@@ -82,6 +82,8 @@ public:
     Q_INVOKABLE Tile* find_tile(int row, int col);
     Q_INVOKABLE Path* find_path(int row, int col);
     Q_INVOKABLE QList<Tile*> find_neighbors(Tile* i_tile);
+
+    QPair<int,int> triggering_node;
 signals:
     void signal_wall_added(Wall* wall_obj);
     void signal_square_added(Square* square_obj);

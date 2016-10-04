@@ -47,12 +47,14 @@ void PathThread::run() {
                 //   qDebug() << mainList;
                 QList<Tile*> previous;
                 previous << tmp_tile;
-                if ((tmp_tile != ex->m_tile) && (m_found_path == false)) {
-                    // QThread::msleep(13);
-                    iterate_neighbors(tmp_tile, previous, m_entrance->m_tile);
+                if ((m_board->find_path(m_entrance->m_tile->m_row, m_entrance->m_tile->m_col)->m_nodes.count() == 0) || ((m_board->find_path(m_entrance->m_tile->m_row, m_entrance->m_tile->m_col)->m_nodes.count() > 2) && (m_board->find_path(m_entrance->m_tile->m_row, m_entrance->m_tile->m_col)->m_nodes.contains(m_board->triggering_node)))) {
+                    if ((tmp_tile != ex->m_tile) && (m_found_path == false)) {
+                        // QThread::msleep(13);
+                        iterate_neighbors(tmp_tile, previous, m_entrance->m_tile);
+
+                    }
 
                 }
-
             }
         }
 
@@ -70,14 +72,19 @@ void PathThread::run() {
             QList<Tile*> mainList;
             m_entity = en;
             // qDebug() << "Found entity" << en;
-            if (m_entity->m_path->m_nodes.count() > 5) {
+            if ((m_entity->m_path->m_nodes.count() > 2) && (m_entity->m_path->m_nodes.contains(m_board->triggering_node))) {
                 //     qDebug() << "Found path" << m_entity->m_path->m_nodes;
                 mainList << m_board->find_tile(m_entity->m_path->m_nodes.first().first, m_entity->m_path->m_nodes.first().second);
+
                 if (!m_blocked_path) {
-                    foreach (Tile* tmp_tile, mainList ) {
+                    foreach (Tile* u_tmp_tile, mainList ) {
                         //   qDebug() << mainList;
+                        Tile* tmp_tile = u_tmp_tile;
                         QList<Tile*> previous;
-                        previous << tmp_tile;
+
+
+                            previous << tmp_tile;
+
                         if ((tmp_tile != ex->m_tile) && (m_found_path == false)) {
                             // QThread::msleep(13);
                             //  qDebug() << "Iterating";
@@ -101,7 +108,7 @@ void PathThread::run() {
                             for (int a=(path->m_nodes.count() - 1); a<(m_entity->m_path->m_nodes.count() + 0); a++) {
                                 m_entity->m_path->m_nodes.removeLast();
                             }
-                            m_entity->m_path->simplify();
+                         //   m_entity->m_path->simplify();
                             //m_entity->m_path->m_nodes << path->m_nodes;
                         }
                     }
@@ -137,7 +144,7 @@ void PathThread::iterate_neighbors(Tile *cur_tile, QList<Tile *> i_previous_tile
     Exit* ex = m_board->exits.first();
     Tile* best_tile;
     qint64 end_time = QDateTime::currentMSecsSinceEpoch();
-    if ((end_time - start_time) < 800) {
+    if ((end_time - start_time) < 5000) {
         foreach (Tile* u_tile, tmp_neighbors) {
 
             if (!previous_tiles.contains(u_tile)) {
@@ -181,7 +188,7 @@ void PathThread::iterate_neighbors(Tile *cur_tile, QList<Tile *> i_previous_tile
                             foreach (Tile* i_tile, new_previous) {
                                 path->m_nodes << qMakePair(i_tile->m_row, i_tile->m_col);
                             }
-                            //  path->simplify();
+                              path->simplify();
                             m_found_path = true;
                         } else {
                             this->iterate_neighbors(u_tile, new_previous, start_tile);
@@ -202,7 +209,7 @@ QList<Tile *> PathThread::compress_list(QList<Tile *> inp_list)
 
     QList<Tile*> final_path;
 
-    if ((inp_list.count() % 10) == 0) {
+    if ((inp_list.count() > 5)) {
         for (int i=0; i<inp_list.count(); i++) {
 
             Tile* check_tile = inp_list.at(i);
@@ -212,14 +219,19 @@ QList<Tile *> PathThread::compress_list(QList<Tile *> inp_list)
             int best_idx = -1;
             Tile* best_tile;
             neighbors << m_board->find_neighbors(check_tile);
-            foreach (Tile* i_tile, neighbors) {
-
-                if ((inp_list.indexOf(i_tile) > best_idx) && (inp_list.indexOf(i_tile) > i)) { best_idx = inp_list.indexOf(i_tile); best_tile = i_tile; }
+            Tile* best_neighbor;
+            int best_neighbor_index;
+            foreach (Tile* q_tile, neighbors) {
+                foreach (Tile* i_tile, m_board->find_neighbors(q_tile)) {
+                    if (i_tile != check_tile) {
+                        if ((inp_list.indexOf(i_tile) > best_idx) && (inp_list.indexOf(i_tile) > i)) { best_idx = inp_list.indexOf(i_tile); best_tile = i_tile; best_neighbor = q_tile; best_neighbor_index = inp_list.indexOf(q_tile); }
+                    }
+                }
             }
             if (best_idx == -1) {
                 final_path << check_tile;
             } else {
-                final_path << check_tile << best_tile;
+                final_path << check_tile << best_neighbor << best_tile;
                 i = best_idx + 1;
             }
         }
