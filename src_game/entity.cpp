@@ -9,7 +9,7 @@
 #include <QTimer>
 Entity::Entity(QObject *parent, Board *i_board) : QObject(parent), m_board(i_board)
 {
-
+completed = false;
 }
 
 void Entity::next_path_tile()
@@ -20,12 +20,16 @@ void Entity::next_path_tile()
         if (m_board->find_exit(pair.first, pair.second)) {
             emit this->completed_path(m_entityIndex);
         } else {
+            QPoint oldPos = QPoint(m_x, m_y);
             set_x(tile->m_x);
             set_y(tile->m_y);
+            QPoint newPos = QPoint(m_x, m_y);
+            emit this->callout_position(oldPos, newPos);
             // qDebug() << "Changing x to " << tile->m_x << "and y to: " << tile->m_y;
             QTimer::singleShot(m_speed, this, SLOT(next_path_tile()));
         }
     } else {
         emit this->completed_path(m_entityIndex);
+        this->completed = true;
     }
 }

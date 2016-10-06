@@ -71,7 +71,9 @@ void Board::placeSquare(int row, int col) {
     //  qDebug() << "Board: Got word to create new Square" << new_square;
     emit this->signal_square_added(new_square);
     emit this->signal_pathing_set_walkable(row, col, true);
-    this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
+  //  this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
+    connect(new_square, SIGNAL(tileSelected(bool)), this, SLOT(unselect_all_but_sender(bool)));
+    connect(new_square, SIGNAL(signal_show_gunStore(bool)), this, SLOT(show_gunStore(bool)));
 
 }
 
@@ -96,6 +98,7 @@ void Board::placeGun(int row, int col, int gun_type)
     triggering_node = qMakePair(row, col);
     db_tiles.insert(getIndex(row, col), new_gun);
    new_gun->m_type = gun_type;
+   connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*)));
    this->randomize_paths();
 
 
@@ -285,7 +288,62 @@ void Board::place_last_gun(bool shouldPlace)
             placeSquare(new_gun->m_tile->m_row, new_gun->m_tile->m_col);
     }
     //eraseTile(getRow(last_tlist), getCol(last_tlist));
- //   placeSquare(getRow(last_tlist), getCol(last_tlist));
+    //   placeSquare(getRow(last_tlist), getCol(last_tlist));
+}
+
+void Board::show_gunStore(bool is_shown)
+{
+    emit this->signal_show_gunStore(is_shown);
+
+}
+
+void Board::unselect_all_but_sender(bool is_selected)
+{
+    if (is_selected == true)  {
+    Square* sq = qobject_cast<Square*>(sender());
+    if (sq) {
+        foreach (int idx, this->db_tiles.keys()) {
+            Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+            if (tmp_sq) {
+                if (sq != tmp_sq) {
+                    tmp_sq->setSelected(false);
+                }
+            }
+        }
+    } else {
+        foreach (int idx, this->db_tiles.keys()) {
+            Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+            if (tmp_sq) {
+
+                    tmp_sq->setSelected(false);
+
+            }
+        }
+    }
+    }
+
+}
+
+void Board::place_gun_on_selected(int gunType)
+{
+    foreach (int idx, this->db_tiles.keys()) {
+        Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+        if (tmp_sq) {
+            if (tmp_sq->m_selected) {
+                this->placeGun(getRow(idx), getCol(idx), gunType);
+            }
+
+        }
+
+    }
+}
+
+void Board::check_entity_within_range(QPoint oldPos, QPoint newPos)
+{
+    Entity* en = qobject_cast<Entity*>(sender());
+    if (en) {
+        emit this->signal_check_entity_within_range(oldPos, newPos, en);
+    }
 }
 
 
@@ -341,7 +399,9 @@ Entity *Board::create_entity(int x, int y, int height, int width)
     new_entity->m_y = y;
     new_entity->m_width = width;
     new_entity->m_height = height;
+    this->connect(new_entity, SIGNAL(callout_position(QPoint,QPoint)), this, SLOT(check_entity_within_range(QPoint,QPoint)));
     this->connect(new_entity, SIGNAL(completed_path(int)), this, SLOT(eraseEntity(int)));
+
     return new_entity;
 
 }

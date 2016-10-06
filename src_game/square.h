@@ -19,6 +19,7 @@ signals:
     void going_to_delete();
     void tileSelected(bool isSelected);
     void signal_place_gun(int row, int col, int gun_type);
+    void signal_show_gunStore(bool is_shown);
 
 public slots:
     void slot_erase();

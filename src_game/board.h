@@ -5,6 +5,7 @@
 #include <QtCore/qglobal.h>
 #include <QHash>
 #include <QVariant>
+#include <QPoint>
 
 class Enemy;
 class Entity;
@@ -102,6 +103,10 @@ signals:
      void signal_update_pathing_grid(int rowCount, int colCount);
 
      void signal_update_xy_translation(int new_x, int new_y);
+
+     void signal_show_gunStore(bool is_shown);
+
+     void signal_check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity);
 public slots:
     void changeRowCount(int newCount);
     void changeColCount(int newCount);
@@ -141,6 +146,11 @@ public slots:
     void randomize_paths();
 
     void place_last_gun(bool shouldPlace);
+
+    void show_gunStore(bool is_shown);
+    void unselect_all_but_sender(bool is_selected);
+    void place_gun_on_selected(int gunType);
+    void check_entity_within_range(QPoint oldPos, QPoint newPos);
 };
 
 #endif // BOARD_H

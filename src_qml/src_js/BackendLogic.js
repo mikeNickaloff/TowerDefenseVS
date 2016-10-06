@@ -96,5 +96,10 @@ function create_gun(new_gun) {
 
     game.board.signal_tile_erased.connect(sq.check_if_erased);
     sq.i_have_been_erased.connect(sq.destroy);
+      new_gun.rotationChanged.connect(sq.setRotation);
     }
+}
+function show_gunStore(is_shown) {
+    gunStore.visible = is_shown;
+    gunStore.enabled = is_shown;
 }

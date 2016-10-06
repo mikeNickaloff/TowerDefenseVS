@@ -1,5 +1,7 @@
 import QtQuick 2.7
 import QtQuick.Window 2.2
+import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.0
 import com.towerdefensevs 1.0
 import "./src_qml/src_js/BackendLogic.js" as BackendLogic
 import "./src_qml/src_js/FrontEndLogic.js" as FrontEndLogic
@@ -9,6 +11,7 @@ Window {
     width: 640
     height: 480
     title: qsTr("Hello World")
+    color: "black"
     property var m_squares: []
 
 
@@ -63,6 +66,8 @@ Window {
         game.board.signal_enemy_added.connect(BackendLogic.create_enemy);
         game.board.populate_entry_paths();
 
+        game.board.signal_show_gunStore.connect(BackendLogic.show_gunStore);
+
     }
 
                     function update_xy_translation_slot(new_x, new_y) {
@@ -112,7 +117,7 @@ Window {
         Rectangle {
             color: "black"
             anchors.fill: parent
-            z: -1
+            z: 0
         }
         transform: [
             Rotation {
@@ -175,6 +180,29 @@ Window {
                 }
 
             }
+        }
+    }
+    Rectangle {
+        id: gunStore
+        height: background.height * 0.20
+        width: background.width * 0.90
+        anchors.bottom: parent.bottom
+        z: 500
+        color: "#3ddb4a"
+        visible: false
+        enabled: false
+        GroupBox {
+            anchors.fill: parent
+        RowLayout {
+            spacing: 3
+
+            Button {
+                text: "cannon"
+                onClicked: {
+                    game.board.place_gun_on_selected(1);
+                }
+            }
+        }
         }
     }
 

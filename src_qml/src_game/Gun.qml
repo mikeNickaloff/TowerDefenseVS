@@ -13,12 +13,19 @@ TileTemplate {
         OpacityAnimator {
            from: 0
            to: 1
-           duration: 10000
+           duration: 2000
         }
     }
     Image {
+        id: gunImage
         anchors.fill: parent
         source: "qrc:///src_images/guns/"  + gun_type + ".png"
+        Behavior on rotation {
+            NumberAnimation { duration: 2000 }
+        }
+    }
+    function setRotation(newRot) {
+        gunImage.rotation = newRot;
     }
 
     }

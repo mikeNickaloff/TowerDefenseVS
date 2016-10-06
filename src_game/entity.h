@@ -3,7 +3,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
-
+#include <QPoint>
 class Board;
 class Tile;
 class Path;
@@ -24,6 +24,7 @@ public:
     Board* m_board;
     int m_speed;
     int m_entityIndex;
+    bool completed;
 
 signals:
     Q_SIGNAL  void myWidthChanged(int new_width);
@@ -31,6 +32,7 @@ signals:
       void xChanged(int new_x);
       void yChanged(int new_y);
       void completed_path(int entityIndex);
+      void callout_position(QPoint oldPos, QPoint newPos);
 public slots:
       void set_x(int new_x) { m_x = new_x; emit xChanged(new_x); }
       void set_y(int new_y) { m_y = new_y; emit yChanged(new_y); }

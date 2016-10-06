@@ -1,6 +1,6 @@
 import QtQuick 2.7
 import com.towerdefensevs 1.0
-
+import QtQuick.Controls 2.0
 Rectangle {
     id: rect
     property Square backend
@@ -55,7 +55,42 @@ Rectangle {
     signal x_translate_changed(var new_x_translate)
     signal y_translate_changed(var new_y_translate)
     signal restart_animation_translate()
+    Popup {
+            id: popup
+            x: 0
+            y: 0
 
+
+            visible: false
+
+            width: 400
+            height: 600
+            modal: true
+            focus: true
+            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+            contentItem: Item {
+                z: 275
+                Row {
+                    Button {
+                        width: 300
+                        height:200
+                        Text {
+                            anchors.centerIn:parent
+                            text: "Gun 1"
+                        }
+                        z: 284
+
+
+                         onClicked: {
+                             backend.gotMouseClick();
+                             game.board.placeGun(backend.tile.row, backend.tile.col, 1);
+                             popup.close();
+                         }
+
+                    }
+                }
+            }
+        }
     MouseArea {
         anchors.fill: parent
         width: parent.width
@@ -63,6 +98,7 @@ Rectangle {
         onClicked: {
             console.log("walkable: " + backend.tile.walkable );
             backend.gotMouseClick();
+          //  popup.open();
         }
         z: 101
 
