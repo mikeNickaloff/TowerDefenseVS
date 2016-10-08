@@ -48,5 +48,6 @@
         <file>src_qml/src_game/Enemy.qml</file>
         <file>src_qml/src_game/EntityTemplate.qml</file>
         <file>src_qml/src_game/Gun.qml</file>
+        <file>src_qml/src_game/ParticleTankMuzzleBlast.qml</file>
     </qresource>
 </RCC>

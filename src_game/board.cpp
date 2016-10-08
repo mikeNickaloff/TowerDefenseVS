@@ -26,6 +26,9 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
     //QTimer::singleShot(10000, this, SLOT(populate_entry_paths()));
 
     entrance_index = 0;
+    this->fireTimer = new QTimer(this);
+    connect(fireTimer, SIGNAL(timeout()), this, SLOT(fire_all()));
+    fireTimer->start(250);
 
 }
 void Board::changeRowCount(int newCount) {
@@ -71,7 +74,7 @@ void Board::placeSquare(int row, int col) {
     //  qDebug() << "Board: Got word to create new Square" << new_square;
     emit this->signal_square_added(new_square);
     emit this->signal_pathing_set_walkable(row, col, true);
-  //  this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
+    //  this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
     connect(new_square, SIGNAL(tileSelected(bool)), this, SLOT(unselect_all_but_sender(bool)));
     connect(new_square, SIGNAL(signal_show_gunStore(bool)), this, SLOT(show_gunStore(bool)));
 
@@ -97,9 +100,9 @@ void Board::placeGun(int row, int col, int gun_type)
     this->new_gun = new Gun(create_tile(row, col, tileWidth, tileHeight, false, false));
     triggering_node = qMakePair(row, col);
     db_tiles.insert(getIndex(row, col), new_gun);
-   new_gun->m_type = gun_type;
-   connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*)));
-   this->randomize_paths();
+    new_gun->m_type = gun_type;
+    connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*)));
+    this->randomize_paths();
 
 
 }
@@ -250,7 +253,7 @@ void Board::create_enemy(Tile *i_tile, int height, int width, int speed, int hea
     new_enemy->m_entity->m_speed = speed;
     new_enemy->m_entity->m_entityIndex = lastEntity;
     //new_enemy->m_entity->next_path_tile();
-   emit this->signal_enemy_added(new_enemy);
+    emit this->signal_enemy_added(new_enemy);
     QTimer::singleShot(speed, new_enemy->m_entity, SLOT(next_path_tile()));
 }
 
@@ -300,26 +303,26 @@ void Board::show_gunStore(bool is_shown)
 void Board::unselect_all_but_sender(bool is_selected)
 {
     if (is_selected == true)  {
-    Square* sq = qobject_cast<Square*>(sender());
-    if (sq) {
-        foreach (int idx, this->db_tiles.keys()) {
-            Square* tmp_sq = find_square(getRow(idx), getCol(idx));
-            if (tmp_sq) {
-                if (sq != tmp_sq) {
+        Square* sq = qobject_cast<Square*>(sender());
+        if (sq) {
+            foreach (int idx, this->db_tiles.keys()) {
+                Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+                if (tmp_sq) {
+                    if (sq != tmp_sq) {
+                        tmp_sq->setSelected(false);
+                    }
+                }
+            }
+        } else {
+            foreach (int idx, this->db_tiles.keys()) {
+                Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+                if (tmp_sq) {
+
                     tmp_sq->setSelected(false);
+
                 }
             }
         }
-    } else {
-        foreach (int idx, this->db_tiles.keys()) {
-            Square* tmp_sq = find_square(getRow(idx), getCol(idx));
-            if (tmp_sq) {
-
-                    tmp_sq->setSelected(false);
-
-            }
-        }
-    }
     }
 
 }
@@ -343,6 +346,21 @@ void Board::check_entity_within_range(QPoint oldPos, QPoint newPos)
     Entity* en = qobject_cast<Entity*>(sender());
     if (en) {
         emit this->signal_check_entity_within_range(oldPos, newPos, en);
+    }
+}
+
+void Board::fire_all()
+{
+    QHash<int, QObject*>::const_iterator u = this->db_tiles.constBegin();
+    while (u != db_tiles.constEnd()) {
+        Gun* gu = this->find_gun(getRow(u.key()), getCol(u.key()));
+        if (gu) {
+            gu->fire();
+
+        }
+
+
+        u++;
     }
 }
 

@@ -25,7 +25,7 @@ public:
     int m_speed;
     int m_entityIndex;
     bool completed;
-
+    Q_INVOKABLE QPoint center();
 signals:
     Q_SIGNAL  void myWidthChanged(int new_width);
       void heightChanged(int new_height);

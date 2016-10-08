@@ -85,7 +85,7 @@ function create_enemy(new_enemy) {
 function create_gun(new_gun) {
     if (new_gun != null) {
     var component = Qt.createComponent("qrc:///src_qml/src_game/Gun.qml");
-    var sq = component.createObject(background, { "backend" : new_gun, "gun_type" : new_gun.type });
+    var sq = component.createObject(background, { "backend" : new_gun, "gun_type" : new_gun.type, "background" : background });
     sq.x = new_gun.tile.x;
     sq.y = new_gun.tile.y;
         sq.opacity = 1.0;
@@ -97,6 +97,9 @@ function create_gun(new_gun) {
     game.board.signal_tile_erased.connect(sq.check_if_erased);
     sq.i_have_been_erased.connect(sq.destroy);
       new_gun.rotationChanged.connect(sq.setRotation);
+        if (new_gun.type == 1) {
+            new_gun.signal_fire.connect(sq.fire_type_1);
+        }
     }
 }
 function show_gunStore(is_shown) {

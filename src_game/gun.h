@@ -5,6 +5,7 @@
 #include <QtCore/qglobal.h>
 #include <QPoint>
 #include <QtMath>
+#include <QDateTime>
 class Tile;
 class Entity;
 class Path;
@@ -21,9 +22,16 @@ public:
     bool m_selected;
     int m_type;
     int m_range;
+
+    // length of time it takes for a bullet to travel 10 pixels in MS
+    int m_rate;
+
+    int m_reload_time;
+
     double m_rotation;
    Entity* m_target_entity;
    int m_target_range;
+   qint64 next_allowed_fire;
    qreal  angleTo(int cx, int cy, int ex, int ey) {
       qreal dy = ey - cy;
       qreal dx = ex - cx;
@@ -38,9 +46,12 @@ signals:
     void typeChanged(int new_type);
     void rotationChanged(double newRot);
 
+    void signal_fire(int endX, int endY, int gunType, int duration);
+
 public slots:
     void slot_erase();
     void gotMouseClick();
     void check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity);
+    void fire();
 };
 #endif // GUN_H

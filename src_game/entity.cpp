@@ -7,6 +7,7 @@
 #include <QPoint>
 #include <QtDebug>
 #include <QTimer>
+#include <QRect>
 Entity::Entity(QObject *parent, Board *i_board) : QObject(parent), m_board(i_board)
 {
 completed = false;
@@ -32,4 +33,9 @@ void Entity::next_path_tile()
         emit this->completed_path(m_entityIndex);
         this->completed = true;
     }
+}
+QPoint Entity::center()
+{
+    QRect rect(m_x, m_y, m_width, m_height);
+    return rect.center();
 }

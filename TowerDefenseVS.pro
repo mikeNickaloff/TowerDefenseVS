@@ -56,3 +56,6 @@ HEADERS += \
 DISTFILES += \
     LICENSE \
     README.md
+
+OBJECTS_DIR = .obj
+MOC_DIR     = .moc

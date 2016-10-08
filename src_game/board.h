@@ -6,7 +6,7 @@
 #include <QHash>
 #include <QVariant>
 #include <QPoint>
-
+#include <QTimer>
 class Enemy;
 class Entity;
 class Entrance;
@@ -85,6 +85,8 @@ public:
     Q_INVOKABLE QList<Tile*> find_neighbors(Tile* i_tile);
 
     QPair<int,int> triggering_node;
+
+    QTimer* fireTimer;
 signals:
     void signal_wall_added(Wall* wall_obj);
     void signal_square_added(Square* square_obj);
@@ -151,6 +153,7 @@ public slots:
     void unselect_all_but_sender(bool is_selected);
     void place_gun_on_selected(int gunType);
     void check_entity_within_range(QPoint oldPos, QPoint newPos);
+    void fire_all();
 };
 
 #endif // BOARD_H
