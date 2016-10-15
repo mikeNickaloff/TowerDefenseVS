@@ -43,6 +43,7 @@ signals:
     void yChanged(int new_y);
 public slots:
     void setMyWidth(int new_width);
+    void setBuildable(bool new_buildable) { m_buildable = new_buildable; emit this->buildableChanged(new_buildable); }
 };
 
 #endif // TILE_H

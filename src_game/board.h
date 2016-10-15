@@ -20,6 +20,7 @@ class Game;
 class Path;
 class PathThread;
 class Gun;
+class AStarPath;
 class Board : public QObject
 {
     Q_OBJECT
@@ -63,6 +64,10 @@ public:
 
     int entrance_index;
     int exit_index;
+    int numEnemies;
+    int numWaves;
+    int wave_size;
+    int waves_per_level;
 
     PathThread* m_paththread;
 
@@ -87,6 +92,8 @@ public:
     QPair<int,int> triggering_node;
 
     QTimer* fireTimer;
+
+      AStarPath* new_star;
 signals:
     void signal_wall_added(Wall* wall_obj);
     void signal_square_added(Square* square_obj);
@@ -154,6 +161,7 @@ public slots:
     void place_gun_on_selected(int gunType);
     void check_entity_within_range(QPoint oldPos, QPoint newPos);
     void fire_all();
+    void slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy);
 };
 
 #endif // BOARD_H

@@ -7,6 +7,12 @@ Item {
     height: 10
     x: 0
     y: 0
+    property int globx;
+    property int globy;
+    property int splash_damage
+    property int splash_distance
+    property int damage
+
   Behavior on x {
       NumberAnimation { duration: rootItem.life }
   }
@@ -17,15 +23,27 @@ Item {
         id: particleSystem
     }
     signal done_with_item()
+    signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy)
     Timer {
         interval: rootItem.life
         running: true
         repeat: false
         onTriggered: {
-          rootItem.done_with_item();
+            object_done_timer.start();
+            rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy);
+            create_impact();
         }
     }
-    property int life: 100
+    Timer {
+        id: object_done_timer
+        interval: 200
+        running: false
+        repeat: false
+        onTriggered: {
+            rootItem.done_with_item();
+        }
+    }
+    property int life: 50
     ImageParticle {
         objectName: "fire"
         groups: ["rocket"]
@@ -54,14 +72,14 @@ Item {
         height: 5
         enabled: true
         group: "rocket"
-        emitRate: 120
-        maximumEmitted: 50
+        emitRate: 40
+        maximumEmitted: 20
         startTime: 0
-        lifeSpan: 70
+        lifeSpan: 25
         lifeSpanVariation: 0
-        size: 10
+        size:30
         sizeVariation: 0
-        endSize: 50
+        endSize: 5
         velocityFromMovement: 0
         system: particleSystem
         velocity:
@@ -78,5 +96,14 @@ Item {
                 fill: true
             }
 
+    }
+    function create_impact() {
+        rootItem.height = 15;
+        rootItem.width = 15;
+        blastEmitter.width = 25;
+        blastEmitter.height = 25;
+        blastEmitter.size = 10;
+        blastEmitter.endSize = 60;
+        blastEmitter.lifeSpan = 100;
     }
 }

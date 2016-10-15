@@ -67,6 +67,8 @@ Window {
         game.board.populate_entry_paths();
 
         game.board.signal_show_gunStore.connect(BackendLogic.show_gunStore);
+        game.moneyChanged.connect(scoreHUD.change_money);
+        game.levelChanged.connect(scoreHUD.change_level);
 
     }
 
@@ -153,11 +155,23 @@ Window {
         width: background.width
         x: 0
         y: 0
+        function change_money(newAmt) {
+            game_money = newAmt;
+            moneyText.text = "Money: $" + newAmt;
+        }
+        function change_level(newAmt) {
+            game_level = newAmt;
+            levelText.text = "Level: " + newAmt;
+        }
+        property int game_money: 100
+        property int game_level: 1
+
         color: "transparent"
         Item {
             Row {
                 Text {
-                    text: "Money: $" + game.money
+        id: moneyText
+                    text: "Money: $" + scoreHUD.game_money
                     font.family: "Consolas"
                     horizontalAlignment: Text.AlignHCenter
                     style: Text.Raised
@@ -168,7 +182,8 @@ Window {
                     color: "#0aec28"
                 }
                 Text {
-                    text: "Level: " + game.level
+                    id: levelText
+                    text: "Level: " + scoreHUD.game_level
                     font.family: "Consolas"
                     horizontalAlignment: Text.AlignHCenter
                     style: Text.Raised

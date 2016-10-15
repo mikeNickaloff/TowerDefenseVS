@@ -9,16 +9,28 @@
 #include <QPoint>
 Gun::Gun(Tile *itile) : m_tile(itile)
 {
-    m_range = 150;
+    m_range = 250;
     m_rotation = 0;
     m_target_entity = 0;
-    m_rate = 10;
+    m_rate = 5;
     m_reload_time = 1500;
+    m_damage = 100;
+    m_splash_damage = 75;
+   m_splash_distance = 35;
 }
 
 Gun::~Gun()
 {
     delete m_tile;
+}
+
+QPoint Gun::midpoint(QPoint pt1, QPoint pt2)
+{
+    QPoint delta = QPoint(pt2 - pt1);
+    delta.setX(delta.x() * 0.5);
+    delta.setY(delta.y() * 0.5);
+    QPoint rv = QPoint(pt1 + delta);
+    return rv;
 }
 
 void Gun::slot_erase()
@@ -96,12 +108,12 @@ void Gun::fire()
     qint64 cur_time = QDateTime::currentMSecsSinceEpoch();
     if (cur_time >= this->next_allowed_fire) {
         if (m_target_entity) {
-            if (m_target_entity->completed == false) {
+            if ((m_target_entity->completed == false) && (m_target_entity->m_opacity > 0.1)) {
                 int distance = QPoint(m_target_entity->center() - m_tile->center()).manhattanLength();
                 if (distance <= this->m_range) {
-                    int particle_life = qRound(qRound((distance * 0.1) * this->m_rate) * 0.75);
+                    int particle_life = qRound(qRound((distance * 0.4) * this->m_rate) * 0.65);
                     // qDebug() << "Firing at " << m_target_entity->center().x() << m_target_entity->center().y() << particle_life;
-                    emit this->signal_fire(m_target_entity->center().x(), m_target_entity->center().y(), this->m_type, particle_life);
+                    emit this->signal_fire(m_target_entity->realpos().x(), m_target_entity->realpos().y(), this->m_type, particle_life, this->m_damage, this->m_splash_distance, this->m_splash_damage);
                     this->next_allowed_fire = cur_time + this->m_reload_time;
                 }
             }

@@ -8,15 +8,17 @@
 class Player : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant money MEMBER m_money NOTIFY moneyChanged)
-    Q_PROPERTY(QVariant health MEMBER m_health NOTIFY healthChanged)
+    Q_PROPERTY(int money MEMBER m_money NOTIFY moneyChanged)
+    Q_PROPERTY(int health MEMBER m_health NOTIFY healthChanged)
 public:
-    explicit Player(QObject *parent = 0);
-    QVariant m_money;
-    QVariant m_health;
+    explicit Player(QObject *parent = 0, bool i_defender = true);
+   int m_money;
+    int m_health;
+    bool isAttacker;
+    bool isDefender;
 signals:
-    void moneyChanged(QVariant newMoney);
-    void healthChanged(QVariant newHealth);
+    void moneyChanged(int newMoney);
+    void healthChanged(int newHealth);
 public slots:
 };
 

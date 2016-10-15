@@ -28,6 +28,11 @@ public:
 
     int m_reload_time;
 
+    int m_damage;
+
+    int m_splash_distance;
+    int m_splash_damage;
+
     double m_rotation;
    Entity* m_target_entity;
    int m_target_range;
@@ -39,6 +44,7 @@ public:
        theta *= 180 / (22 / 7); // rads to degs, range (-180, 180]
        return (360 + theta);
    }
+   QPoint midpoint(QPoint pt1, QPoint pt2);
 signals:
     void tileChanged(Tile* newTile);
     void going_to_delete();
@@ -46,7 +52,7 @@ signals:
     void typeChanged(int new_type);
     void rotationChanged(double newRot);
 
-    void signal_fire(int endX, int endY, int gunType, int duration);
+    void signal_fire(int endX, int endY, int gunType, int duration, int damage, int splash_distance, int splash_damage);
 
 public slots:
     void slot_erase();

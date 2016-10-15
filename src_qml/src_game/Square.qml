@@ -19,7 +19,13 @@ Rectangle {
 
         }
     }
-
+    function update_border_colors(buildable_state) {
+        if (buildable_state == true) {
+            rect.border.color = "darkGreen";
+        } else {
+            rect.border.color = "darkRed";
+        }
+    }
     Component.onCompleted: {
         if (backend !== null) {
             backend.tile.myWidthChanged.connect(changeWidth);
@@ -96,7 +102,10 @@ Rectangle {
         width: parent.width
         height: parent.height
         onClicked: {
-            console.log("walkable: " + backend.tile.walkable );
+           // console.log("walkable: " + backend.tile.walkable );
+            if (backend.tile.buildable == false) {
+                //rect.border.color = "red";
+            }
             backend.gotMouseClick();
           //  popup.open();
         }

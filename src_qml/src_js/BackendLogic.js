@@ -15,6 +15,7 @@ function create_square(new_square) {
     game.board.signal_tile_erased.connect(sq.check_if_erased);
     sq.i_have_been_erased.connect(sq.destroy);
     new_square.tileSelected.connect(sq.set_selected);
+    new_square.tile.buildableChanged.connect(sq.update_border_colors);
 
 }
 function change_tile_property(prop, val, row, col) {
@@ -70,7 +71,7 @@ function create_wall(new_wall) {
 
 function create_enemy(new_enemy) {
     var component = Qt.createComponent("qrc:///src_qml/src_game/Enemy.qml");
-    var sq = component.createObject(background, { "backend" : new_enemy, "x" : new_enemy.entity.x });
+    var sq = component.createObject(background, { "backend" : new_enemy, "x" : new_enemy.entity.x, "enemy_type" : new_enemy.type  });
     sq.x = new_enemy.entity.x
     sq.y = new_enemy.entity.y
     sq.width = new_enemy.entity.width;
@@ -80,6 +81,7 @@ function create_enemy(new_enemy) {
 
     game.board.signal_entity_erased.connect(sq.check_if_erased);
     sq.i_have_been_erased.connect(sq.destroy);
+    new_enemy.entity.opacityChanged.connect(sq.modifyOpacity);
 }
 
 function create_gun(new_gun) {
@@ -99,6 +101,7 @@ function create_gun(new_gun) {
       new_gun.rotationChanged.connect(sq.setRotation);
         if (new_gun.type == 1) {
             new_gun.signal_fire.connect(sq.fire_type_1);
+            sq.signal_shell_explode.connect(game.board.slot_shell_explode);
         }
     }
 }

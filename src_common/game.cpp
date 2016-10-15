@@ -13,6 +13,13 @@
 Game::Game(QObject *parent) : QObject(parent)
 {
     m_level = 1;
+    p1 = new Player(this, true);
+    p2 = new Player(this, false);
+    m_money = 100;
+    p1->m_money = 100;
+    p2->m_money = 100;
+    p1->m_health = 10;
+    p2->m_health = 10;
 }
 void Game::createBoard() {
 
@@ -32,4 +39,27 @@ void Game::createMap() {
     this->connect(m_map, SIGNAL(placeExit(int, int)), m_board, SLOT(placeExit(int,int)));
     this->connect(m_map, SIGNAL(placeSquare(int, int)), m_board, SLOT(placeSquare(int,int)));
     m_map->Map::create_blank_map();
+}
+
+void Game::award_defenders(int amount)
+{
+    if (p1->isDefender == true) {
+        p1->m_money += amount;
+        this->m_money = p1->m_money;
+    } else {
+        p2->m_money += amount;
+    }
+    emit this->moneyChanged(m_money);
+}
+
+void Game::award_attackers(int amount)
+{
+    if (p1->isAttacker == true) {
+        p1->m_money += amount;
+
+    } else {
+        p2->m_money += amount;
+
+    }
+    emit this->moneyChanged(m_money);
 }

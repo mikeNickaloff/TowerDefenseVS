@@ -8,6 +8,7 @@ Rectangle {
     property var backend
     property var xpos
     property var ypos
+
     function changeX(new_x) {
        rect.x = new_x;
     }

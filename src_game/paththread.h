@@ -13,6 +13,7 @@ class Path;
 class Square;
 class Entity;
 class Enemy;
+class AStarPath;
 class PathThread : public QThread
 {
     Q_OBJECT

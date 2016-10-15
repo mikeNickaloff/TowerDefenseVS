@@ -8,10 +8,17 @@ EntityTemplate {
     Image {
         anchors.fill: parent
         source: "qrc:///src_images/attackers/"  + enemy_type + ".png"
+        id: enemy_image
+        Behavior on opacity {
+            NumberAnimation { duration: 500 }
+        }
     }
 
 
     z: 105
+     function modifyOpacity(new_opacity) {
+         enemy_image.opacity = new_opacity;
+     }
     }
 
 

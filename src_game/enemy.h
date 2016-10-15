@@ -29,6 +29,7 @@ signals:
     void speedChanged(int new_speed);
     void entityChanged(Entity* new_entity);
 public slots:
+
 };
 
 #endif // ENEMY_H

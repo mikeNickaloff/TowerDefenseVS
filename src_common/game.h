@@ -11,6 +11,8 @@
 class Map;
 
 class Board;
+class Team;
+class Player;
 
 class Game : public QObject
 {
@@ -25,7 +27,8 @@ public:
     QQmlContext* m_context;
     int m_level;
     int m_money;
-
+    Player* p1;
+    Player* p2;
 
 signals:
     void boardChanged(Board &new_board);
@@ -35,6 +38,8 @@ public slots:
     // creates map object, too.
     void createBoard();
     void createMap();
+    void award_defenders(int amount);
+    void award_attackers(int amount);
 
 };
 

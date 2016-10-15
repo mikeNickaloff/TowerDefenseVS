@@ -26,6 +26,10 @@ public:
     int m_entityIndex;
     bool completed;
     Q_INVOKABLE QPoint center();
+    Q_INVOKABLE QPoint realpos();
+    QPoint _realpos;
+
+    qreal m_opacity;
 signals:
     Q_SIGNAL  void myWidthChanged(int new_width);
       void heightChanged(int new_height);
@@ -33,6 +37,8 @@ signals:
       void yChanged(int new_y);
       void completed_path(int entityIndex);
       void callout_position(QPoint oldPos, QPoint newPos);
+      void killed(int entityIndex);
+      void opacityChanged(qreal new_opacity);
 public slots:
       void set_x(int new_x) { m_x = new_x; emit xChanged(new_x); }
       void set_y(int new_y) { m_y = new_y; emit yChanged(new_y); }

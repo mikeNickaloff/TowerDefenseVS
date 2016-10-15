@@ -13,11 +13,14 @@
 #include "../src_common/game.h"
 #include "paththread.h"
 #include "gun.h"
+#include "../src_common/astarpath.h"
 #include <QtDebug>
 #include <QTimer>
 #include <QPointer>
 #include <QVariant>
 #include <QThread>
+#include <QRect>
+#include <QPoint>
 Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
     numRows = 50;
@@ -29,6 +32,11 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
     this->fireTimer = new QTimer(this);
     connect(fireTimer, SIGNAL(timeout()), this, SLOT(fire_all()));
     fireTimer->start(250);
+    numWaves = 0;
+    numEnemies = 0;
+    wave_size = 4;
+    waves_per_level = 2;
+    new_star = new AStarPath(this, this);
 
 }
 void Board::changeRowCount(int newCount) {
@@ -69,11 +77,12 @@ void Board::placeWall(int row, int col) {
 
 void Board::placeSquare(int row, int col) {
     eraseTile(row,col);
-    this->new_square = new Square(create_tile(row, col, tileWidth, tileHeight, true, true));
+    this->new_square = new Square(create_tile(row, col, tileWidth, tileHeight, false, true));
     db_tiles.insert(getIndex(row, col), new_square);
     //  qDebug() << "Board: Got word to create new Square" << new_square;
     emit this->signal_square_added(new_square);
     emit this->signal_pathing_set_walkable(row, col, true);
+    new_square->m_tile->setBuildable(false);
     //  this->connect(new_square, SIGNAL(signal_place_gun(int,int,int)), this, SLOT(placeGun(int,int,int)));
     connect(new_square, SIGNAL(tileSelected(bool)), this, SLOT(unselect_all_but_sender(bool)));
     connect(new_square, SIGNAL(signal_show_gunStore(bool)), this, SLOT(show_gunStore(bool)));
@@ -85,6 +94,8 @@ void Board::placeEntrance(int row, int col) {
     db_tiles.insert(getIndex(row, col), new_entrance);
     emit this->signal_entrance_added(new_entrance);
     emit this->signal_pathing_set_walkable(row, col, true);
+    Path* path = find_path(row, col);
+    path->clear_path();
 }
 
 void Board::placeExit(int row, int col) {
@@ -103,6 +114,20 @@ void Board::placeGun(int row, int col, int gun_type)
     new_gun->m_type = gun_type;
     connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*)));
     this->randomize_paths();
+    foreach (Tile* ti, this->find_neighbors(new_gun->m_tile)) {
+
+        if (ti->m_walkable) { ti->setBuildable(true); }
+        foreach (Tile* pti, find_neighbors(ti)) {
+            if (pti->m_walkable) {
+                pti->setBuildable(true);
+            }
+            foreach (Tile* uti, find_neighbors(pti)) {
+                if (uti->m_walkable) {
+                    uti->setBuildable(true);
+                }
+            }
+        }
+    }
 
 
 }
@@ -260,10 +285,23 @@ void Board::create_enemy(Tile *i_tile, int height, int width, int speed, int hea
 void Board::spawn_random_enemy()
 {
     entrance_index++;
+    numEnemies++;
     if (entrance_index >= entrances.count()) { entrance_index = 0; }
-    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 2500, 1000, entrance_index);
-
-    QTimer::singleShot(5000, this, SLOT(spawn_random_enemy()));
+    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1200, 335 * m_game->m_level, entrance_index != 0 ? entrance_index : 1);
+    if (numEnemies < wave_size) {
+        QTimer::singleShot(1100, this, SLOT(spawn_random_enemy()));
+    } else {
+        numWaves++;
+        numEnemies = 0;
+        if (numWaves < this->waves_per_level) {
+            QTimer::singleShot(5000, this, SLOT(spawn_random_enemy()));
+        } else {
+            this->m_game->m_level++;
+            emit m_game->levelChanged(m_game->m_level);
+            this->numWaves = 0;
+            QTimer::singleShot(12000, this, SLOT(spawn_random_enemy()));
+        }
+    }
 }
 
 void Board::eraseEntity(int entityIndex)
@@ -364,6 +402,37 @@ void Board::fire_all()
     }
 }
 
+void Board::slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy)
+{
+    // qDebug() << "Exploding shell at " << ix << iy << "with damage" << idamage << "and splash damage/distance" << isplash_damage << isplash_distance;
+    QHash<int, QObject*>::const_iterator u = this->db_entities.constBegin();
+    while (u != db_entities.constEnd()) {
+        Enemy* en = qobject_cast<Enemy*>(u.value());
+        if (en) {
+            QRect eRect(en->m_entity->realpos().x() - (0.5 * en->m_entity->m_width), en->m_entity->realpos().y() - (0.5 * en->m_entity->m_height), en->m_entity->m_width, en->m_entity->m_height);
+            if (eRect.contains(QPoint(ix, iy), false)) {
+                en->m_health -= idamage;
+                en->m_health -= isplash_damage;
+            } else {
+                int distance_from_splash = QPoint(QPoint(ix, iy) - en->m_entity->realpos()).manhattanLength();
+                if (distance_from_splash <= isplash_distance) {
+
+                    en->m_health -= qRound((qreal)(distance_from_splash / isplash_distance) * isplash_damage);
+
+                }
+            }
+            if (en->m_health <= 0) {
+                if (en->m_entity->m_path->m_nodes.count() > 0) {
+                    m_game->award_defenders(m_game->m_level * 2);
+                    en->m_entity->m_path->clear_path();
+                }
+            }
+        }
+
+        u++;
+    }
+}
+
 
 
 
@@ -419,6 +488,7 @@ Entity *Board::create_entity(int x, int y, int height, int width)
     new_entity->m_height = height;
     this->connect(new_entity, SIGNAL(callout_position(QPoint,QPoint)), this, SLOT(check_entity_within_range(QPoint,QPoint)));
     this->connect(new_entity, SIGNAL(completed_path(int)), this, SLOT(eraseEntity(int)));
+    this->connect(new_entity, SIGNAL(killed(int)), this, SLOT(eraseEntity(int)));
 
     return new_entity;
 

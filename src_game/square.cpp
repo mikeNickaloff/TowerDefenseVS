@@ -21,9 +21,13 @@ void Square::slot_erase()
 void Square::gotMouseClick()
 {
 //emit this->signal_place_gun(m_tile->m_row, m_tile->m_col, 1);
-
+    if (this->m_tile->m_buildable) {
         this->setSelected(!m_selected);
         emit this->signal_show_gunStore(m_selected);
+    } else {
+        this->setSelected(false);
+        qDebug() << "Too Far Away";
+    }
 
 }
 

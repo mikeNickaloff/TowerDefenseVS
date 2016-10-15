@@ -20,7 +20,8 @@ SOURCES += main.cpp \
     src_common/team.cpp \
     src_game/path.cpp \
     src_game/paththread.cpp \
-    src_game/gun.cpp
+    src_game/gun.cpp \
+    src_common/astarpath.cpp
 
 RESOURCES += qml.qrc
 
@@ -51,7 +52,8 @@ HEADERS += \
     src_common/team.h \
     src_game/path.h \
     src_game/paththread.h \
-    src_game/gun.h
+    src_game/gun.h \
+    src_common/astarpath.h
 
 DISTFILES += \
     LICENSE \
