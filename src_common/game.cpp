@@ -8,6 +8,7 @@
 
 #include "player.h"
 #include "team.h"
+#include "propertysheet.h"
 
 
 Game::Game(QObject *parent) : QObject(parent)
@@ -20,6 +21,7 @@ Game::Game(QObject *parent) : QObject(parent)
     p2->m_money = 100;
     p1->m_health = 10;
     p2->m_health = 10;
+    this->m_props = new PropertySheet(this);
 }
 void Game::createBoard() {
 

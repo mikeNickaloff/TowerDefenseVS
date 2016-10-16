@@ -21,6 +21,7 @@ class Path;
 class PathThread;
 class Gun;
 class AStarPath;
+class PropertySheet;
 class Board : public QObject
 {
     Q_OBJECT

@@ -14,6 +14,7 @@ class Board;
 class Team;
 class Player;
 
+class PropertySheet;
 class Game : public QObject
 {
     Q_OBJECT
@@ -29,6 +30,7 @@ public:
     int m_money;
     Player* p1;
     Player* p2;
+    PropertySheet* m_props;
 
 signals:
     void boardChanged(Board &new_board);

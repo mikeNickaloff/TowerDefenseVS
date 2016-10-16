@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     src_game/path.cpp \
     src_game/paththread.cpp \
     src_game/gun.cpp \
-    src_common/astarpath.cpp
+    src_common/astarpath.cpp \
+    src_common/propertysheet.cpp
 
 RESOURCES += qml.qrc
 
@@ -53,7 +54,8 @@ HEADERS += \
     src_game/path.h \
     src_game/paththread.h \
     src_game/gun.h \
-    src_common/astarpath.h
+    src_common/astarpath.h \
+    src_common/propertysheet.h
 
 DISTFILES += \
     LICENSE \

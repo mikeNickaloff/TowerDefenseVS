@@ -103,6 +103,10 @@ function create_gun(new_gun) {
             new_gun.signal_fire.connect(sq.fire_type_1);
             sq.signal_shell_explode.connect(game.board.slot_shell_explode);
         }
+        if (new_gun.type == 2) {
+            new_gun.signal_fire.connect(sq.fire_type_2);
+            sq.signal_shell_explode.connect(game.board.slot_shell_explode);
+        }
     }
 }
 function show_gunStore(is_shown) {

@@ -21,6 +21,7 @@
 #include <QThread>
 #include <QRect>
 #include <QPoint>
+#include "../src_common/propertysheet.h"
 Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
     numRows = 50;
@@ -31,11 +32,11 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
     entrance_index = 0;
     this->fireTimer = new QTimer(this);
     connect(fireTimer, SIGNAL(timeout()), this, SLOT(fire_all()));
-    fireTimer->start(250);
+    fireTimer->start(100);
     numWaves = 0;
     numEnemies = 0;
-    wave_size = 4;
-    waves_per_level = 2;
+    wave_size = 20;
+    waves_per_level = 1;
     new_star = new AStarPath(this, this);
 
 }
@@ -128,6 +129,7 @@ void Board::placeGun(int row, int col, int gun_type)
             }
         }
     }
+    m_game->m_props->apply_properties(new_gun);
 
 
 }
@@ -287,9 +289,9 @@ void Board::spawn_random_enemy()
     entrance_index++;
     numEnemies++;
     if (entrance_index >= entrances.count()) { entrance_index = 0; }
-    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1200, 335 * m_game->m_level, entrance_index != 0 ? entrance_index : 1);
+    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 700, 335 * m_game->m_level, entrance_index != 0 ? entrance_index : 1);
     if (numEnemies < wave_size) {
-        QTimer::singleShot(1100, this, SLOT(spawn_random_enemy()));
+        QTimer::singleShot(600, this, SLOT(spawn_random_enemy()));
     } else {
         numWaves++;
         numEnemies = 0;

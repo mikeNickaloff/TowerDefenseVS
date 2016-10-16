@@ -60,10 +60,10 @@ QList<Tile*> AStarPath::find_path(Tile *i_start, Tile *i_end)
                 if (!openSet.contains(neighbor)) {
                     openSet.append(neighbor);
 
-                    qDebug() << "open" << openSet;
+                 /*   qDebug() << "open" << openSet;
                     qDebug() << "---";
                     qDebug() << "closed" << closedSet;
-                    qDebug() << "--------------------";
+                    qDebug() << "--------------------"; */
                 } else {
                     if (tentative_gScore >= gScore.value(neighbor)) {
                      continue;
@@ -93,7 +93,7 @@ QList<Tile *> AStarPath::reconstruct_path(Tile *i_end)
             rv.prepend(current);
         }
     }
-    qDebug() << "Reconstructed:" << rv;
+   // qDebug() << "Reconstructed:" << rv;
    // rv.takeFirst();
     //rv.takeFirst();
     return rv;

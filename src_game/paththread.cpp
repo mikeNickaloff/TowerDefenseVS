@@ -12,12 +12,15 @@
 #include <QtDebug>
 #include <QLine>
 #include <QDateTime>
+#include <QMutex>
 PathThread::PathThread(QObject *parent, Board *i_board) : QThread(parent), m_board(i_board)
 {
 
 }
 void PathThread::run() {
 
+    QMutex mutex;
+   mutex.lock();
     /*High = 10;
     Low = 3;
     qsrand(QDateTime::currentMSecsSinceEpoch());
@@ -131,7 +134,9 @@ void PathThread::run() {
                                 m_entity->m_path->m_nodes.insert(a, pair);
                             }
                             for (int a=(path->m_nodes.count() - 1); a<(m_entity->m_path->m_nodes.count() + 0); a++) {
-                                m_entity->m_path->m_nodes.removeLast();
+                                if (m_entity->m_path->m_nodes.count() > 0) {
+                                    m_entity->m_path->m_nodes.removeLast();
+                                }
                             }
                               // m_entity->m_path->simplify();
                             //m_entity->m_path->m_nodes << path->m_nodes;
@@ -145,6 +150,7 @@ void PathThread::run() {
         }
     }
 
+
     if (m_blocked_path == true) {
         emit this->place_last_gun(false);
 
@@ -153,7 +159,7 @@ void PathThread::run() {
         emit this->place_last_gun(true);
     }
 
-
+    mutex.unlock();
     qint64 end_time = QDateTime::currentMSecsSinceEpoch();
     qDebug() << "Elapsed Time:" << (end_time - start_time) << "ms";
     exit();
@@ -174,7 +180,7 @@ void PathThread::iterate_neighbors(Tile *cur_tile, QList<Tile *> i_previous_tile
     Exit* ex = m_board->exits.first();
     Tile* best_tile;
     qint64 end_time = QDateTime::currentMSecsSinceEpoch();
-    if ((end_time - start_time) < 10000) {
+    if ((end_time - start_time) < 2000) {
         foreach (Tile* u_tile, tmp_neighbors) {
 
             if (!previous_tiles.contains(u_tile)) {

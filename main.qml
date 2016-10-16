@@ -217,6 +217,13 @@ Window {
                     game.board.place_gun_on_selected(1);
                 }
             }
+            Button {
+                text: "Machine Gun"
+                onClicked: {
+                    game.board.place_gun_on_selected(2);
+                }
+            }
+
         }
         }
     }

@@ -10,7 +10,7 @@ Path::Path(QObject *parent, Board *i_board) : QObject(parent), m_board(i_board)
 void Path::append_node(int row, int col)
 {
     this->m_nodes << qMakePair(row, col);
-    qDebug() << "Added Node  " << row << col << "total: " << m_nodes.count();
+ //   qDebug() << "Added Node  " << row << col << "total: " << m_nodes.count();
 }
 
 void Path::clear_path()

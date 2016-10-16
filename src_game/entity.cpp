@@ -26,6 +26,7 @@ void Entity::next_path_tile()
         } else {
             QPoint oldPos = QPoint(m_x, m_y);
             QPoint oldCenter = center();
+            emit this->rotationChanged(90 + angleTo(oldCenter.x(), oldCenter.y(), tile->center().x(), tile->center().y()));
             set_x(tile->m_x);
             set_y(tile->m_y);
             if (tile->m_buildable) { emit this->opacityChanged(1.0); m_opacity = 1.0; } else { emit this->opacityChanged(0.1); m_opacity = 0.1;}
