@@ -101,8 +101,26 @@ void PathThread::run() {
             m_entity = en;
             // qDebug() << "Found entity" << en;
             if ((m_entity->m_path->m_nodes.count() > 2) && (m_entity->m_path->m_nodes.contains(m_board->triggering_node))) {
+
+                QList<Tile*> rez2;
+
+                m_blocked_path = false;
+                rez2 << m_board->new_star->find_path(m_board->find_tile(m_entity->m_path->m_nodes.first().first, m_entity->m_path->m_nodes.first().second), ex->m_tile);
+                if (rez2.count() < 3) { m_blocked_path = true; } else { m_blocked_path = false; }
+                if (!m_blocked_path) {
+                    int oldPathSize = m_entity->m_path->m_nodes.count();
+                    while (rez2.count() > 0) {
+                        Tile* t_tile = rez2.takeFirst();
+                    m_entity->m_path->append_node(t_tile->m_row, t_tile->m_col);
+
+                }
+                   for (int a=0; a<oldPathSize; a++) {
+                       m_entity->m_path->m_nodes.takeFirst();
+                   }
+                }
+
                 //     qDebug() << "Found path" << m_entity->m_path->m_nodes;
-                mainList << m_board->find_tile(m_entity->m_path->m_nodes.first().first, m_entity->m_path->m_nodes.first().second);
+              /*  mainList << m_board->find_tile(m_entity->m_path->m_nodes.first().first, m_entity->m_path->m_nodes.first().second);
 
                 if (!m_blocked_path) {
                     foreach (Tile* u_tmp_tile, mainList ) {
@@ -144,7 +162,7 @@ void PathThread::run() {
                     }
 
 
-                }
+                } */
 
             }
         }

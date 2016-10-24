@@ -8,11 +8,14 @@ Item {
     id: rootItem
     x: 0
     y: 0
+    z: 900
     property int globx;
     property int globy;
     property int splash_damage
     property int splash_distance
     property int damage
+    property int dx;
+    property int dy;
 
     ParticleSystem {
         id: particleSystem
@@ -31,13 +34,14 @@ Item {
         repeat: false
         onTriggered: {
             object_done_timer.start();
+
             rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy);
-           // create_impact();
+            create_impact();
         }
     }
     Timer {
         id: object_done_timer
-        interval: 20
+        interval: 100
         running: false
         repeat: false
         onTriggered: {
@@ -68,6 +72,7 @@ Item {
     }
 
     ImageParticle {
+        id: bulletParticle
         objectName: "machineGunProjectile"
         groups: ["machineGunBullet"]
         source: "qrc:///src_images/particles/tracer.png"
@@ -123,6 +128,8 @@ Item {
     }
 
     Emitter {
+        z: 900
+        id: blastEmitter
         objectName: "bulletEmitter"
         width: 5
         height: 5
@@ -155,5 +162,17 @@ Item {
             }
         shape:
             RectangleShape {}
+    }
+    function create_impact() {
+        rootItem.height = 15;
+        rootItem.width = 15;
+        blastEmitter.width = 5;
+        blastEmitter.height = 5;
+        blastEmitter.size = 15;
+        blastEmitter.endSize = 1;
+        blastEmitter.rotation += 90;
+        bulletParticle.rotationVariation = 90;
+
+        blastEmitter.lifeSpan = 100;
     }
 }

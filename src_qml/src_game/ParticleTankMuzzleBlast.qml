@@ -36,7 +36,7 @@ Item {
     }
     Timer {
         id: object_done_timer
-        interval: 200
+        interval: 400
         running: false
         repeat: false
         onTriggered: {

@@ -9,7 +9,7 @@ TileTemplate {
     color: "black"
     border.color: "#f9f0f0"
     border.width: 2
-    z: 105
+    z: 120
     opacity: 0
     Behavior on opacity {
         OpacityAnimator {
@@ -38,7 +38,7 @@ TileTemplate {
         sq.globy = endY;
         sq.width = 10;
         sq.height = 10;
-        sq.z = 600;
+        sq.z = 200;
         sq.visible = true;
         sq.damage = damage;
         sq.splash_distance = splash_distance;
@@ -50,14 +50,18 @@ TileTemplate {
     }
     function fire_type_2(endX, endY, i_type, i_duration, damage, splash_distance, splash_damage) {
         var component = Qt.createComponent("qrc:///src_qml/src_game/ParticleMachineGun.qml");
-        var sq = component.createObject(rect, { "x" : mapFromItem(background, backend.tile.center().x, backend.tile.center().y).x, "y" : mapFromItem(background, backend.tile.center().x, backend.tile.center().y).y, "life" : i_duration });
+        var startx = mapFromItem(background, backend.tile.center().x, backend.tile.center().y).x;
+        var starty = mapFromItem(background, backend.tile.center().x, backend.tile.center().y).y;
+        var sq = component.createObject(rect, { "x" : startx, "y" : starty, "life" : i_duration });
         sq.x = mapFromItem(background, endX, endY).x;
         sq.y = mapFromItem(background, endX, endY).y;
+        sq.dx = (sq.x - startx);
+        sq.dy = (sq.y - starty);
         sq.globx = endX;
         sq.globy = endY;
         sq.width = 10;
         sq.height = 10;
-        sq.z = 600;
+        sq.z = 200;
         sq.visible = true;
         sq.rotation = gunImage.rotation
         sq.damage = damage;
