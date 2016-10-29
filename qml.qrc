@@ -50,5 +50,8 @@
         <file>src_qml/src_game/Gun.qml</file>
         <file>src_qml/src_game/ParticleTankMuzzleBlast.qml</file>
         <file>src_qml/src_game/ParticleMachineGun.qml</file>
+        <file>src_images/guns/3.png</file>
+        <file>src_qml/src_game/FlameBlast.qml</file>
+        <file>src_images/particles/particleflame.png</file>
     </qresource>
 </RCC>

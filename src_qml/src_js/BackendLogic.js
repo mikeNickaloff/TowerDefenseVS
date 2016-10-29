@@ -71,7 +71,7 @@ function create_wall(new_wall) {
 
 function create_enemy(new_enemy) {
     var component = Qt.createComponent("qrc:///src_qml/src_game/Enemy.qml");
-    var sq = component.createObject(background, { "backend" : new_enemy, "x" : new_enemy.entity.x, "enemy_type" : new_enemy.type  });
+    var sq = component.createObject(background, { "backend" : new_enemy, "x" : new_enemy.entity.x, "enemy_type" : new_enemy.type, "opacity" : 0.05  });
     sq.x = new_enemy.entity.x
     sq.y = new_enemy.entity.y
     sq.width = new_enemy.entity.width;
@@ -105,6 +105,10 @@ function create_gun(new_gun) {
         }
         if (new_gun.type == 2) {
             new_gun.signal_fire.connect(sq.fire_type_2);
+            sq.signal_shell_explode.connect(game.board.slot_shell_explode);
+        }
+        if (new_gun.type == 3) {
+            new_gun.signal_fire.connect(sq.fire_type_3);
             sq.signal_shell_explode.connect(game.board.slot_shell_explode);
         }
     }

@@ -20,6 +20,7 @@ EntityTemplate {
     z: 105
      function modifyOpacity(new_opacity) {
          enemy_image.opacity = new_opacity;
+         enemy.opacity = 1.0;
      }
     }
 

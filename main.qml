@@ -224,6 +224,13 @@ Window {
                 }
             }
 
+            Button {
+                text: "Flame Thrower"
+                onClicked: {
+                    game.board.place_gun_on_selected(3);
+                }
+            }
+
         }
         }
     }

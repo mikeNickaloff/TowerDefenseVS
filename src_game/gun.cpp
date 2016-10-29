@@ -48,7 +48,7 @@ void Gun::check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_enti
     QPoint myPos = QPoint(m_tile->center());
     qreal newRot = m_rotation;
     int range = QPoint(newPos - myPos).manhattanLength();
-
+    //qDebug() << "Gun Processed Entity Points";
     if (range <= m_range) {
         if (m_target_entity) {
             if (m_target_entity->completed == false) {
@@ -100,6 +100,7 @@ void Gun::check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_enti
             m_rotation = newRot;
         }
         emit this->rotationChanged(m_rotation);
+       // qDebug() << "Gun Rotated";
     }
 }
 
