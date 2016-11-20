@@ -8,6 +8,8 @@
 #include "tile.h"
 #include "tower.h"
 #include "wall.h"
+#include "../src_common/player.h"
+
 
 #include "path.h"
 #include "../src_common/game.h"
@@ -21,6 +23,7 @@
 #include <QThread>
 #include <QRect>
 #include <QPoint>
+#include <QHash>
 #include "../src_common/propertysheet.h"
 Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
 {
@@ -108,12 +111,36 @@ void Board::placeExit(int row, int col) {
 
 void Board::placeGun(int row, int col, int gun_type)
 {
+
+    qDebug() << "Removing in range cache with " << this->in_range_cache.count() << this->in_range_cache.size();
+    in_range_cache.empty();
+    this->last_range_cache_clear = QDateTime::currentDateTime();
     eraseTile(row, col);
     this->new_gun = new Gun(create_tile(row, col, tileWidth, tileHeight, false, false));
+    new_gun->m_type = gun_type;
+    m_game->m_props->apply_properties(new_gun);
+
+    bool can_afford = false;
+    if (m_game->p1->isDefender) {
+        if (m_game->p1->m_money >= (new_gun->m_damage + (new_gun->m_range * 0.25))) {
+            can_afford = true;
+        } else {
+            can_afford = false;
+        }
+    } else {
+        if (m_game->p2->m_money >= (new_gun->m_damage + (new_gun->m_range * 0.25))) {
+            can_afford = true;
+        } else {
+            can_afford = false;
+        }
+    }
+
     triggering_node = qMakePair(row, col);
     db_tiles.insert(getIndex(row, col), new_gun);
-    new_gun->m_type = gun_type;
-    connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*)));
+
+    connect(this, SIGNAL(signal_check_entity_within_range(QPoint,QPoint, Entity*,bool)), new_gun, SLOT(check_entity_within_range(QPoint,QPoint,Entity*,bool)));
+    connect(new_gun, SIGNAL(signal_show_upgradeStore(Gun*)), this, SLOT(show_upgradeStore(Gun*)));
+    connect(new_gun, SIGNAL(callback_in_range(QPoint,QPoint,Gun*)), this, SLOT(gun_range_callback(QPoint,QPoint,Gun*)));
     this->randomize_paths();
     foreach (Tile* ti, this->find_neighbors(new_gun->m_tile)) {
 
@@ -134,7 +161,14 @@ void Board::placeGun(int row, int col, int gun_type)
             }
         }
     }
-    m_game->m_props->apply_properties(new_gun);
+    if (can_afford) {
+        m_game->award_defenders(0 - (new_gun->m_damage + (new_gun->m_range * 0.25)));
+    } else {
+        //this->placeSquare(row, col);
+        m_paththread->terminate();
+        place_last_gun(false);
+    }
+
 
 
 }
@@ -334,20 +368,103 @@ void Board::place_last_gun(bool shouldPlace)
     } else {
         if (new_gun)
             placeSquare(new_gun->m_tile->m_row, new_gun->m_tile->m_col);
+
     }
     //eraseTile(getRow(last_tlist), getCol(last_tlist));
     //   placeSquare(getRow(last_tlist), getCol(last_tlist));
 }
 
+void Board::upgrade_selected_gun_range(int new_range, int cost)
+{
+    foreach (int idx, this->db_tiles.keys()) {
+        Gun* tmp_gun = find_gun(getRow(idx), getCol(idx));
+        if (tmp_gun) {
+            if (tmp_gun->m_selected) {
+                if (m_game->p1->isDefender) {
+                    if (m_game->p1->m_money >= cost) {
+                        tmp_gun->m_range = new_range;
+                        tmp_gun->m_splash_distance *= 1.15;
+                        this->show_upgradeStore(tmp_gun);
+                        m_game->award_defenders(0 - cost);
+                    }
+                } else {
+                    if (m_game->p2->m_money >= cost) {
+                        tmp_gun->m_range = new_range;
+                        tmp_gun->m_splash_distance *= 1.15;
+                        this->show_upgradeStore(tmp_gun);
+                        m_game->award_defenders(0 - cost);
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+void Board::upgrade_selected_gun_damage(int new_damage, int cost)
+{
+    foreach (int idx, this->db_tiles.keys()) {
+        Gun* tmp_gun = find_gun(getRow(idx), getCol(idx));
+        if (tmp_gun) {
+            if (tmp_gun->m_selected) {
+                if (m_game->p1->isDefender) {
+                    if (m_game->p1->m_money >= cost) {
+                        tmp_gun->m_damage = new_damage;
+                        tmp_gun->m_splash_damage *= 1.25;
+                        this->show_upgradeStore(tmp_gun);
+                        m_game->award_defenders(0 - cost);
+                    }
+                } else {
+                    if (m_game->p2->m_money >= cost) {
+                        tmp_gun->m_damage = new_damage;
+                        tmp_gun->m_splash_damage *= 1.25;
+                        this->show_upgradeStore(tmp_gun);
+                        m_game->award_defenders(0 - cost);
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+void Board::show_upgradeStore(Gun *i_gun)
+{
+    foreach (int idx, this->db_tiles.keys()) {
+        Gun* tmp_gun = find_gun(getRow(idx), getCol(idx));
+        if (tmp_gun) {
+            if (tmp_gun->m_selected) {
+                if (tmp_gun != i_gun) {
+                    tmp_gun->setSelected(false);
+                }
+            }
+
+        }
+        Square* tmp_sq = find_square(getRow(idx), getCol(idx));
+        if (tmp_sq) {
+            if (tmp_sq->m_selected) {
+                tmp_sq->setSelected(false);
+            }
+
+        }
+
+    }
+    this->show_gunStore(false);
+    //i_gun->setSelected(true);
+    emit this->signal_show_upgrade_store(true, i_gun->m_damage, i_gun->m_range);
+}
+
 void Board::show_gunStore(bool is_shown)
 {
     emit this->signal_show_gunStore(is_shown);
+    emit this->signal_show_upgrade_store(false, 0, 0);
 
 }
 
 void Board::unselect_all_but_sender(bool is_selected)
 {
     if (is_selected == true)  {
+        emit this->signal_show_upgrade_store(false, 0, 0);
         Square* sq = qobject_cast<Square*>(sender());
         if (sq) {
             foreach (int idx, this->db_tiles.keys()) {
@@ -357,6 +474,13 @@ void Board::unselect_all_but_sender(bool is_selected)
                         tmp_sq->setSelected(false);
                     }
                 }
+                Gun* tmp_gun = find_gun(getRow(idx), getCol(idx));
+                if (tmp_gun) {
+                    if (tmp_gun->m_selected) {
+                        tmp_gun->setSelected(false);
+                    }
+
+                }
             }
         } else {
             foreach (int idx, this->db_tiles.keys()) {
@@ -364,6 +488,13 @@ void Board::unselect_all_but_sender(bool is_selected)
                 if (tmp_sq) {
 
                     tmp_sq->setSelected(false);
+
+                }
+                Gun* tmp_gun = find_gun(getRow(idx), getCol(idx));
+                if (tmp_gun) {
+                    if (tmp_gun->m_selected) {
+                        tmp_gun->setSelected(false);
+                    }
 
                 }
             }
@@ -388,10 +519,37 @@ void Board::place_gun_on_selected(int gunType)
 
 void Board::check_entity_within_range(QPoint oldPos, QPoint newPos)
 {
+   int pair;
+    pair = getIndex(newPos.y(), newPos.x());
     Entity* en = qobject_cast<Entity*>(sender());
     if (en) {
-        emit this->signal_check_entity_within_range(oldPos, newPos, en);
+        if ((!this->in_range_cache.contains(pair)) || (last_range_cache_clear.secsTo(QDateTime::currentDateTime())  < 5)) {
+            if (!this->in_range_cache.contains(pair)) { last_range_cache_clear = QDateTime::currentDateTime(); }
+            emit this->signal_check_entity_within_range(oldPos, newPos, en, true);
+        } else {
+            QList<Gun*> guns;
+            guns << this->in_range_cache.value(pair);
+            foreach (Gun* gun, guns) {
+                gun->check_entity_within_range(oldPos, newPos, en, false);
+            }
+
+        }
     }
+}
+
+void Board::gun_range_callback(QPoint oldPos, QPoint newPos, Gun* i_gun)
+{
+    int pair;
+     pair = getIndex(newPos.y(), newPos.x());
+    QList<Gun*> tmp_list;
+    if (this->in_range_cache.contains(pair)) {
+        tmp_list << in_range_cache.value(pair);
+    }
+    if (!tmp_list.contains(i_gun)) {
+        tmp_list << i_gun;
+        in_range_cache.insert(pair, tmp_list);
+    }
+
 }
 
 void Board::fire_all()

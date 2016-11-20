@@ -31,10 +31,10 @@ Window {
         FrontEndLogic.init_grid(50, 50);
 
         game.board.signal_update_pathing_grid.connect(FrontEndLogic.init_grid);
-       game.board.signal_get_shortest_path.connect(FrontEndLogic.get_shortest_path);
-       game.board.signal_get_shortest_target_path.connect(FrontEndLogic.get_shortest_path);
+        game.board.signal_get_shortest_path.connect(FrontEndLogic.get_shortest_path);
+        game.board.signal_get_shortest_target_path.connect(FrontEndLogic.get_shortest_path);
 
-//             game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
+        //             game.board.signal_pathing_set_walkable.connect(FrontEndLogic.set_grid_node_walkable);
         // create map
         game.createMap();
 
@@ -55,9 +55,9 @@ Window {
 
 
 
-     //   FrontEndLogic.get_shortest_path(0,0, 10, 10);
+        //   FrontEndLogic.get_shortest_path(0,0, 10, 10);
         //create paths
-      //  game.board.populate_entry_paths();
+        //  game.board.populate_entry_paths();
 
         game.board.signal_update_xy_translation.connect(update_xy_translation_slot);
         animation_rotate_scene.start();
@@ -67,16 +67,17 @@ Window {
         game.board.populate_entry_paths();
 
         game.board.signal_show_gunStore.connect(BackendLogic.show_gunStore);
+        game.board.signal_show_upgrade_store.connect(BackendLogic.show_upgradeStore);
         game.moneyChanged.connect(scoreHUD.change_money);
         game.levelChanged.connect(scoreHUD.change_level);
 
     }
 
-                    function update_xy_translation_slot(new_x, new_y) {
-                        bg_x_translation += new_x;
-                        bg_y_translation += new_y;
-                        animation_translate_scene.restart();
-                    }
+    function update_xy_translation_slot(new_x, new_y) {
+        bg_x_translation += new_x;
+        bg_y_translation += new_y;
+        animation_translate_scene.restart();
+    }
     SequentialAnimation {
         id: animation_rotate_scene
         RotationAnimation {
@@ -170,7 +171,7 @@ Window {
         Item {
             Row {
                 Text {
-        id: moneyText
+                    id: moneyText
                     text: "Money: $" + scoreHUD.game_money
                     font.family: "Consolas"
                     horizontalAlignment: Text.AlignHCenter
@@ -208,33 +209,147 @@ Window {
         enabled: false
         GroupBox {
             anchors.fill: parent
-        RowLayout {
-            spacing: 3
+            RowLayout {
+                spacing: 3
 
-            Button {
-                text: "cannon"
-                onClicked: {
-                    game.board.place_gun_on_selected(1);
+                Button {
+                    text: "cannon"
+                    onClicked: {
+                        game.board.place_gun_on_selected(1);
+                    }
                 }
-            }
-            Button {
-                text: "Machine Gun"
-                onClicked: {
-                    game.board.place_gun_on_selected(2);
+                Button {
+                    text: "Machine Gun"
+                    onClicked: {
+                        game.board.place_gun_on_selected(2);
+                    }
                 }
-            }
 
-            Button {
-                text: "Flame Thrower"
-                onClicked: {
-                    game.board.place_gun_on_selected(3);
+                Button {
+                    text: "Flame Thrower"
+                    onClicked: {
+                        game.board.place_gun_on_selected(3);
+                    }
                 }
-            }
 
-        }
+            }
         }
     }
 
+
+    Rectangle {
+        id: upgradeStore
+        height: background.height * 0.20
+        width: background.width * 0.90
+        anchors.bottom: parent.bottom
+        z: 500
+        color: "#2d7ae4"
+        border.color: "#938b8b"
+        visible: false
+        enabled: false
+        property var i_row;
+        property var i_col;
+        property var i_damage;
+        property var i_range;
+
+        GridView {
+            anchors.left: parent.left
+            width: parent.width * 0.66
+            height: parent.height
+
+            cellHeight: background.height * 0.09
+            cellWidth: background.width * 0.65
+            model: VisualItemModel {
+                Row {
+                    spacing: background.width * 0.10
+                    Text {
+                        text: "Damage: " + upgradeStore.i_damage;
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+                    Text {
+                        text: " -> " + Math.round(upgradeStore.i_damage * 1.25);
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        horizontalAlignment: Text.AlignHCenter
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+
+                    Text {
+
+                        text: "[$" + Math.round(upgradeStore.i_damage * 2.55) + "]"
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        horizontalAlignment: Text.AlignRight
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+
+                }
+                Row {
+                            spacing: background.width * 0.10
+                    Text {
+                        text: "Range: " + upgradeStore.i_range;
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+                    Text {
+                        text: " -> " + Math.round(upgradeStore.i_range * 1.25);
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        horizontalAlignment: Text.AlignHCenter
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+
+                    Text {
+                        text: "[$" + Math.round(upgradeStore.i_range * 2.55) + "]"
+                        color: "#fbf8f8"
+                        font.family: "Consolas"
+                        horizontalAlignment: Text.AlignRight
+                        styleColor: "#f9f2f2"
+                        verticalAlignment: Text.AlignVCenter
+                        font.pointSize: 14
+                    }
+                }
+            }
+        }
+
+        GridView {
+            anchors.left: parent.horizontalCenter;
+            width: parent.width * 0.25
+            height: parent.height
+
+            cellHeight: background.height * 0.09
+            cellWidth: background.width * 0.25
+            model: VisualItemModel {
+                Row {
+                    Button {
+                        text: "Upgrade"
+                        onClicked: function()  { game.board.upgrade_selected_gun_damage(Math.round(upgradeStore.i_damage * 1.25), Math.round(upgradeStore.i_damage * 1.75)); }
+                    }
+
+                }
+                Row {
+
+                    Button {
+                        text: "Upgrade"
+                         onClicked: function()  { game.board.upgrade_selected_gun_range(Math.round(upgradeStore.i_range * 1.15), Math.round(upgradeStore.i_range * 1.75)); }
+                    }
+                }
+            }
+        }
+    }
 
 
 

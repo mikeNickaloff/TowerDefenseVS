@@ -53,11 +53,14 @@ signals:
     void rotationChanged(double newRot);
 
     void signal_fire(int endX, int endY, int gunType, int duration, int damage, int splash_distance, int splash_damage);
+    void signal_show_upgradeStore(Gun* iGun);
 
+    void callback_in_range(QPoint oldPos, QPoint newPos, Gun* i_me);
 public slots:
     void slot_erase();
     void gotMouseClick();
-    void check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity);
+    void setSelected(bool is_selected);
+    void check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity, bool callback_if_yes = true);
     void fire();
 };
 #endif // GUN_H

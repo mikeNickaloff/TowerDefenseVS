@@ -29,6 +29,15 @@ TileTemplate {
     function setRotation(newRot) {
         gunImage.rotation = newRot;
     }
+    function set_selected(isSelected) {
+        if (isSelected == true) {
+         rect.color = "white";
+        } else {
+            rect.color = "black";
+        }
+    }
+
+
     function fire_type_1(endX, endY, i_type, i_duration, damage, splash_distance, splash_damage) {
         var component = Qt.createComponent("qrc:///src_qml/src_game/ParticleTankMuzzleBlast.qml");
         var sq = component.createObject(rect, { "x" : mapFromItem(background, backend.tile.center().x, backend.tile.center().y).x, "y" : mapFromItem(background, backend.tile.center().x, backend.tile.center().y).y, "life" : i_duration });
@@ -86,9 +95,9 @@ TileTemplate {
         sq.globy = endY;
         sq.width = 10;
         sq.height = 10;
-        sq.z = 200;
+        sq.z = 150;
         sq.visible = true;
-        sq.rotation = gunImage.rotation
+        sq.rotation = gunImage.rotation - 45
         sq.damage = damage;
         sq.splash_distance = splash_distance;
         sq.splash_damage = splash_damage;

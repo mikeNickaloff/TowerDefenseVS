@@ -16,7 +16,7 @@ Gun::Gun(Tile *itile) : m_tile(itile)
     m_reload_time = 1500;
     m_damage = 100;
     m_splash_damage = 75;
-   m_splash_distance = 35;
+    m_splash_distance = 35;
 }
 
 Gun::~Gun()
@@ -40,16 +40,31 @@ void Gun::slot_erase()
 
 void Gun::gotMouseClick()
 {
-
+    //emit this->signal_show_upgradeStore(this);
+    this->setSelected(!m_selected);
 }
 
-void Gun::check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity)
+void Gun::setSelected(bool is_selected) {
+    this->m_selected = is_selected;
+      emit this->tileSelected(is_selected);
+    if (this->m_selected) {
+
+        emit this->signal_show_upgradeStore(this);
+    }
+}
+
+void Gun::check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity, bool callback_if_yes)
 {
     QPoint myPos = QPoint(m_tile->center());
     qreal newRot = m_rotation;
     int range = QPoint(newPos - myPos).manhattanLength();
     //qDebug() << "Gun Processed Entity Points";
     if (range <= m_range) {
+        if (callback_if_yes) {
+
+                emit this->callback_in_range(oldPos, newPos, this);
+
+        }
         if (m_target_entity) {
             if (m_target_entity->completed == false) {
                 int oldRange = QPoint(QPoint(m_target_entity->m_x, m_target_entity->m_y) - myPos).manhattanLength();
@@ -100,8 +115,9 @@ void Gun::check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_enti
             m_rotation = newRot;
         }
         emit this->rotationChanged(m_rotation);
-       // qDebug() << "Gun Rotated";
+        // qDebug() << "Gun Rotated";
     }
+
 }
 
 void Gun::fire()

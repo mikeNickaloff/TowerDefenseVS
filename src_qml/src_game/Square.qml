@@ -118,6 +118,7 @@ Rectangle {
 
 
         onPressed: {
+          //  backend.setSelected(false);
             isDragModeOn = true;
             offset_start_x = mouseX;
             offset_start_y = mouseY;

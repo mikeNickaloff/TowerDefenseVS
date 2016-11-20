@@ -23,7 +23,7 @@ void Square::gotMouseClick()
 //emit this->signal_place_gun(m_tile->m_row, m_tile->m_col, 1);
     if (this->m_tile->m_buildable) {
         this->setSelected(!m_selected);
-        emit this->signal_show_gunStore(m_selected);
+
     } else {
         this->setSelected(false);
         qDebug() << "Too Far Away";
@@ -34,4 +34,5 @@ void Square::gotMouseClick()
 void Square::setSelected(bool is_selected) {
     this->m_selected = is_selected;
     emit this->tileSelected(is_selected);
+    emit this->signal_show_gunStore(m_selected);
 }

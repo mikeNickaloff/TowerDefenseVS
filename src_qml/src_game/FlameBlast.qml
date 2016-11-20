@@ -21,15 +21,15 @@ Item {
         id: particleSystem
     }
     Behavior on x {
-        NumberAnimation { duration: rootItem.life / 10 }
+        NumberAnimation { duration: rootItem.life * 3 }
     }
     Behavior on y {
-        NumberAnimation { duration: rootItem.life / 10 }
+        NumberAnimation { duration: rootItem.life * 3 }
     }
     signal done_with_item()
     signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy)
     Timer {
-        interval: rootItem.life * 10
+        interval: rootItem.life * 2
         running: true
         repeat: false
         onTriggered: {
@@ -62,7 +62,7 @@ Item {
         greenVariation: 0
         blueVariation: 0
       //  rotation: 15
-     //   rotationVariation: 22
+        //rotationVariation: 180
         autoRotation: false
         rotationVelocity: 17
         rotationVelocityVariation: 19
@@ -74,18 +74,18 @@ Item {
         id: blastEmitter
         objectName: ""
 
-        width: 5
-        height: 134
+        width: 32
+        height: 5
         enabled: true
         group: "flamer"
-        emitRate: 35
+        emitRate: 25
         maximumEmitted: 8
         startTime: 0
-        lifeSpan: 700
+        lifeSpan: 300
         lifeSpanVariation: 100
-        size: 48
+        size: 38
         sizeVariation: 9
-        endSize: 62
+        endSize: 50
         velocityFromMovement: 103
         system: particleSystem
       //  velocity:
@@ -117,6 +117,6 @@ Item {
        // blastEmitter.rotation = -45;
        // flame.rotationVariation = 0;
 
-        blastEmitter.lifeSpan = 500;
+        blastEmitter.lifeSpan = 90;
     }
 }

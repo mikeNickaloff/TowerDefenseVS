@@ -11,9 +11,9 @@
    */
 PropertySheet::PropertySheet(QObject *parent) : QObject(parent)
 {
-add_property(1, 250, 10, 1500, 20, 15, 35);
+add_property(1, 350, 15, 1000, 120, 100, 135);
 add_property(2, 300, 6, 150, 3, 2, 10);
-add_property(3, 120,  15, 100, 90, 40, 120);
+add_property(3, 200,  10, 125, 90, 90, 250);
 }
 
 
