@@ -13,6 +13,13 @@ Square::~Square()
     delete m_tile;
 }
 
+QString Square::serialize()
+{
+    QString rv;
+    rv.append(QString("|square=tile:%1").arg(m_tile->serialize()));
+    return rv;
+}
+
 void Square::slot_erase()
 {
     emit this->going_to_delete();

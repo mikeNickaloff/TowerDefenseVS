@@ -29,7 +29,7 @@ public:
     int m_y;
     int distance_to_exit;
     QList<Tile*> neighbors;
-
+QString serialize();
     Q_INVOKABLE QPoint center();
 signals:
 

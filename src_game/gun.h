@@ -45,6 +45,8 @@ public:
        return (360 + theta);
    }
    QPoint midpoint(QPoint pt1, QPoint pt2);
+
+   QString serialize();
 signals:
     void tileChanged(Tile* newTile);
     void going_to_delete();

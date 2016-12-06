@@ -100,6 +100,7 @@ public:
 
       QHash<int , QList<Gun*> > in_range_cache;
       QDateTime last_range_cache_clear;
+      Q_INVOKABLE QString serialize();
 
 signals:
     void signal_wall_added(Wall* wall_obj);
@@ -121,7 +122,7 @@ signals:
      void signal_update_xy_translation(int new_x, int new_y);
 
      void signal_show_gunStore(bool is_shown);
-     void signal_show_upgrade_store(bool is_shown, int i_damage, int i_range);
+     void signal_show_upgrade_store(bool is_shown, int i_damage, int i_range, int i_rate, int i_reload);
      void signal_check_entity_within_range(QPoint oldPos, QPoint newPos, Entity* i_entity, bool callback_if_true);
 public slots:
     void changeRowCount(int newCount);
@@ -173,7 +174,7 @@ public slots:
     void check_entity_within_range(QPoint oldPos, QPoint newPos);
     void gun_range_callback(QPoint oldPos, QPoint newPos, Gun*i_gun);
     void fire_all();
-    void slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy);
+    void slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy, int iguntype);
 };
 
 #endif // BOARD_H

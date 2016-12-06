@@ -18,6 +18,7 @@ public:
     Board* m_board;
     int m_type;
     int m_health;
+    int m_cost;
 
     // number of MS it takes to travel one tile
     int m_speed;

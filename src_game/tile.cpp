@@ -7,6 +7,13 @@ m_x = icol * iwidth;
 m_y = irow * iheight;
 }
 
+QString Tile::serialize()
+{
+    QString rv;
+    rv.append(QString("(row:%1,col:%2,buildable:%3,walkable:%4)").arg(this->m_row).arg(this->m_col).arg(this->m_buildable).arg(this->m_walkable));
+    return rv;
+}
+
 QPoint Tile::center()
 {
     QRect rect(m_x, m_y, m_width, m_height);

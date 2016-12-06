@@ -31,6 +31,7 @@ public:
     Player* p1;
     Player* p2;
     PropertySheet* m_props;
+    Player* human;
 
 signals:
     void boardChanged(Board &new_board);

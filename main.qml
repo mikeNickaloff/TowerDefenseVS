@@ -164,7 +164,7 @@ Window {
             game_level = newAmt;
             levelText.text = "Level: " + newAmt;
         }
-        property int game_money: 100
+        property int game_money: 4000
         property int game_level: 1
 
         color: "transparent"
@@ -213,20 +213,20 @@ Window {
                 spacing: 3
 
                 Button {
-                    text: "cannon"
+                    text: "cannon\n$250"
                     onClicked: {
                         game.board.place_gun_on_selected(1);
                     }
                 }
                 Button {
-                    text: "Machine Gun"
+                    text: "Machine Gun\n$250"
                     onClicked: {
                         game.board.place_gun_on_selected(2);
                     }
                 }
 
                 Button {
-                    text: "Flame Thrower"
+                    text: "Flame Tower\n$250"
                     onClicked: {
                         game.board.place_gun_on_selected(3);
                     }
@@ -251,6 +251,8 @@ Window {
         property var i_col;
         property var i_damage;
         property var i_range;
+        property var i_reload;
+        property var i_rate;
 
         GridView {
             anchors.left: parent.left
@@ -261,7 +263,7 @@ Window {
             cellWidth: background.width * 0.65
             model: VisualItemModel {
                 Row {
-                    spacing: background.width * 0.10
+                    spacing: background.width * 0.05
                     Text {
                         text: "Damage: " + upgradeStore.i_damage;
                         color: "#fbf8f8"
@@ -271,10 +273,10 @@ Window {
                         font.pointSize: 14
                     }
                     Text {
-                        text: " -> " + Math.round(upgradeStore.i_damage * 1.25);
+                        text: " -> " + upgradeStore.damage_new_amount();
                         color: "#fbf8f8"
                         font.family: "Consolas"
-                        horizontalAlignment: Text.AlignHCenter
+      //                  horizontalAlignment: Text.AlignHCenter
                         styleColor: "#f9f2f2"
                         verticalAlignment: Text.AlignVCenter
                         font.pointSize: 14
@@ -282,10 +284,10 @@ Window {
 
                     Text {
 
-                        text: "[$" + Math.round(upgradeStore.i_damage * 2.55) + "]"
+                        text: "[$" + upgradeStore.damage_cost() + "]"
                         color: "#fbf8f8"
                         font.family: "Consolas"
-                        horizontalAlignment: Text.AlignRight
+    //                    horizontalAlignment: Text.AlignRight
                         styleColor: "#f9f2f2"
                         verticalAlignment: Text.AlignVCenter
                         font.pointSize: 14
@@ -303,20 +305,20 @@ Window {
                         font.pointSize: 14
                     }
                     Text {
-                        text: " -> " + Math.round(upgradeStore.i_range * 1.25);
+                        text: " -> " + upgradeStore.range_new_amount();
                         color: "#fbf8f8"
                         font.family: "Consolas"
-                        horizontalAlignment: Text.AlignHCenter
+//                        horizontalAlignment: Text.AlignHCenter
                         styleColor: "#f9f2f2"
                         verticalAlignment: Text.AlignVCenter
                         font.pointSize: 14
                     }
 
                     Text {
-                        text: "[$" + Math.round(upgradeStore.i_range * 2.55) + "]"
+                        text: "[$" + upgradeStore.range_cost() + "]"
                         color: "#fbf8f8"
                         font.family: "Consolas"
-                        horizontalAlignment: Text.AlignRight
+  //                      horizontalAlignment: Text.AlignRight
                         styleColor: "#f9f2f2"
                         verticalAlignment: Text.AlignVCenter
                         font.pointSize: 14
@@ -336,7 +338,7 @@ Window {
                 Row {
                     Button {
                         text: "Upgrade"
-                        onClicked: function()  { game.board.upgrade_selected_gun_damage(Math.round(upgradeStore.i_damage * 1.25), Math.round(upgradeStore.i_damage * 1.75)); }
+                        onClicked: function()  { game.board.upgrade_selected_gun_damage(upgradeStore.damage_new_amount(), upgradeStore.damage_cost()); }
                     }
 
                 }
@@ -344,10 +346,25 @@ Window {
 
                     Button {
                         text: "Upgrade"
-                         onClicked: function()  { game.board.upgrade_selected_gun_range(Math.round(upgradeStore.i_range * 1.15), Math.round(upgradeStore.i_range * 1.75)); }
+                         onClicked: function()  { game.board.upgrade_selected_gun_range(upgradeStore.range_new_amount(), upgradeStore.range_cost()); }
                     }
                 }
             }
+        }
+
+        function range_cost() {
+            return Math.max(Math.round((upgradeStore.i_range * 1.25) / (upgradeStore.i_rate * 0.1)), 250);
+        }
+
+        function damage_cost() {
+            return Math.max(Math.round((upgradeStore.i_damage * 1.75) / (upgradeStore.i_reload * 0.01)), 300);
+        }
+        function range_new_amount() {
+            return Math.max(Math.round(upgradeStore.i_range * 1.13), Math.round(upgradeStore.i_range + 10));
+        }
+
+        function damage_new_amount() {
+            return Math.max(Math.round(upgradeStore.i_damage * 1.13), (upgradeStore.i_damage + 15));
         }
     }
 

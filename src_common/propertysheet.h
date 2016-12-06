@@ -6,6 +6,7 @@
 #include <QHash>
 
 class Gun;
+class Enemy;
 class PropertySheet : public QObject
 {
     Q_OBJECT
@@ -36,12 +37,21 @@ public:
    int get_splash_damage(int gun_type) { return m_splash_damage.value(gun_type, 75); }
    int get_splash_distance(int gun_type) { return m_splash_distance.value(gun_type, 35); }
 
+   QHash<int, int> enemy_speed;
+   QHash<int, int> enemy_health;
+   QHash<int, int> enemy_cost;
+
+   int get_enemy_speed(int enemy_type) { return enemy_speed.value(enemy_type, 500); }
+   int get_enemy_health(int enemy_type) { return enemy_health.value(enemy_type, 300); }
+   int get_enemy_cost(int enemy_type) { return enemy_cost.value(enemy_type, 50); }
+
 signals:
 
 public slots:
    void add_property(int gun_type, int range, int bullet_rate, int reload_time, int damage, int splash_damage, int splash_distance);
-
+   void add_property(int enemy_type, int enemy_speed, int enemy_health, int enemy_cost);
    void apply_properties(Gun* i_gun);
+   void apply_properties(Enemy* i_enemy);
 
 };
 

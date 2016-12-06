@@ -38,8 +38,8 @@ Board::Board(QObject *parent, Game *i_game) : QObject(parent), m_game(i_game)
     fireTimer->start(100);
     numWaves = 0;
     numEnemies = 0;
-    wave_size = 20;
-    waves_per_level = 1;
+    wave_size = 15;
+    waves_per_level = 2;
     new_star = new AStarPath(this, this);
 
 }
@@ -121,14 +121,16 @@ void Board::placeGun(int row, int col, int gun_type)
     m_game->m_props->apply_properties(new_gun);
 
     bool can_afford = false;
+    //int cost_for_gun = qRound(qMax((new_gun->m_damage + (new_gun->m_range * 0.25)) / (new_gun->m_reload_time * 0.0075), 250.0));
+    int cost_for_gun = 250;
     if (m_game->p1->isDefender) {
-        if (m_game->p1->m_money >= (new_gun->m_damage + (new_gun->m_range * 0.25))) {
+        if (m_game->p1->m_money >= cost_for_gun) {
             can_afford = true;
         } else {
             can_afford = false;
         }
     } else {
-        if (m_game->p2->m_money >= (new_gun->m_damage + (new_gun->m_range * 0.25))) {
+        if (m_game->p2->m_money >= cost_for_gun) {
             can_afford = true;
         } else {
             can_afford = false;
@@ -162,7 +164,7 @@ void Board::placeGun(int row, int col, int gun_type)
         }
     }
     if (can_afford) {
-        m_game->award_defenders(0 - (new_gun->m_damage + (new_gun->m_range * 0.25)));
+        m_game->award_defenders(0 - cost_for_gun);
     } else {
         //this->placeSquare(row, col);
         m_paththread->terminate();
@@ -310,13 +312,15 @@ void Board::create_enemy(Tile *i_tile, int height, int width, int speed, int hea
         lastEntity++;
     }
     this->db_entities[lastEntity] = new_enemy;
-    new_enemy->m_speed = speed;
-    new_enemy->m_health = health;
-    new_enemy->m_type = i_type;
+        new_enemy->m_type = i_type;
+    m_game->m_props->apply_properties(new_enemy);
+    new_enemy->m_speed -= (m_game->m_level * 5);
+    new_enemy->m_health *= (m_game->m_level * 2.25);
+
     new_path = new Path(this, this);
     new_path->m_nodes << this->db_paths.value(getIndex(i_tile->m_row, i_tile->m_col))->m_nodes;
     new_enemy->m_entity->m_path = new_path;
-    new_enemy->m_entity->m_speed = speed;
+    new_enemy->m_entity->m_speed = new_enemy->m_speed;
     new_enemy->m_entity->m_entityIndex = lastEntity;
     //new_enemy->m_entity->next_path_tile();
     emit this->signal_enemy_added(new_enemy);
@@ -328,9 +332,9 @@ void Board::spawn_random_enemy()
     entrance_index++;
     numEnemies++;
     if (entrance_index >= entrances.count()) { entrance_index = 0; }
-    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 800, 335 * m_game->m_level * 1.75, entrance_index != 0 ? entrance_index : 1);
+    this->create_enemy(this->entrances.at(entrance_index)->m_tile, this->tileHeight, this->tileWidth, 1000 - (m_game->m_level * 5), 475 * m_game->m_level * 1.75, entrance_index != 0 ? entrance_index : 1);
     if (numEnemies < wave_size) {
-        QTimer::singleShot(600, this, SLOT(spawn_random_enemy()));
+        QTimer::singleShot(900 - (m_game->m_level * 8), this, SLOT(spawn_random_enemy()));
     } else {
         numWaves++;
         numEnemies = 0;
@@ -363,8 +367,14 @@ void Board::place_last_gun(bool shouldPlace)
 
 
     if (shouldPlace == true) {
-        if (new_gun)
+        if (new_gun) {
             emit this->signal_gun_added(new_gun);
+            qDebug() << "plaintext" << this->serialize().length();
+            qDebug() << "compress 7" << qCompress(this->serialize().toLocal8Bit(), 7).length();
+            qDebug() << "compress 2" << qCompress(this->serialize().toLocal8Bit(), 2).length();
+
+        }
+
     } else {
         if (new_gun)
             placeSquare(new_gun->m_tile->m_row, new_gun->m_tile->m_col);
@@ -451,20 +461,20 @@ void Board::show_upgradeStore(Gun *i_gun)
     }
     this->show_gunStore(false);
     //i_gun->setSelected(true);
-    emit this->signal_show_upgrade_store(true, i_gun->m_damage, i_gun->m_range);
+    emit this->signal_show_upgrade_store(true, i_gun->m_damage, i_gun->m_range, i_gun->m_rate, i_gun->m_reload_time);
 }
 
 void Board::show_gunStore(bool is_shown)
 {
     emit this->signal_show_gunStore(is_shown);
-    emit this->signal_show_upgrade_store(false, 0, 0);
+    emit this->signal_show_upgrade_store(false, 0, 0, 0, 0);
 
 }
 
 void Board::unselect_all_but_sender(bool is_selected)
 {
     if (is_selected == true)  {
-        emit this->signal_show_upgrade_store(false, 0, 0);
+        emit this->signal_show_upgrade_store(false, 0, 0, 0, 0);
         Square* sq = qobject_cast<Square*>(sender());
         if (sq) {
             foreach (int idx, this->db_tiles.keys()) {
@@ -519,7 +529,7 @@ void Board::place_gun_on_selected(int gunType)
 
 void Board::check_entity_within_range(QPoint oldPos, QPoint newPos)
 {
-   int pair;
+    int pair;
     pair = getIndex(newPos.y(), newPos.x());
     Entity* en = qobject_cast<Entity*>(sender());
     if (en) {
@@ -540,7 +550,7 @@ void Board::check_entity_within_range(QPoint oldPos, QPoint newPos)
 void Board::gun_range_callback(QPoint oldPos, QPoint newPos, Gun* i_gun)
 {
     int pair;
-     pair = getIndex(newPos.y(), newPos.x());
+    pair = getIndex(newPos.y(), newPos.x());
     QList<Gun*> tmp_list;
     if (this->in_range_cache.contains(pair)) {
         tmp_list << in_range_cache.value(pair);
@@ -567,29 +577,31 @@ void Board::fire_all()
     }
 }
 
-void Board::slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy)
+void Board::slot_shell_explode(int isplash_distance, int isplash_damage, int idamage, int ix, int iy, int iguntype)
 {
     // qDebug() << "Exploding shell at " << ix << iy << "with damage" << idamage << "and splash damage/distance" << isplash_damage << isplash_distance;
     QHash<int, QObject*>::const_iterator u = this->db_entities.constBegin();
     while (u != db_entities.constEnd()) {
         Enemy* en = qobject_cast<Enemy*>(u.value());
         if (en) {
-            QRect eRect(en->m_entity->realpos().x() - (0.5 * en->m_entity->m_width), en->m_entity->realpos().y() - (0.5 * en->m_entity->m_height), en->m_entity->m_width, en->m_entity->m_height);
-            if (eRect.contains(QPoint(ix, iy), false)) {
-                en->m_health -= idamage;
-                en->m_health -= isplash_damage;
-            } else {
-                int distance_from_splash = QPoint(QPoint(ix, iy) - en->m_entity->realpos()).manhattanLength();
-                if (distance_from_splash <= isplash_distance) {
+            if (en->m_type != iguntype) {
+                QRect eRect(en->m_entity->realpos().x() - (0.5 * en->m_entity->m_width), en->m_entity->realpos().y() - (0.5 * en->m_entity->m_height), en->m_entity->m_width, en->m_entity->m_height);
+                if (eRect.contains(QPoint(ix, iy), false)) {
+                    en->m_health -= idamage;
+                    en->m_health -= isplash_damage;
+                } else {
+                    int distance_from_splash = QPoint(QPoint(ix, iy) - en->m_entity->realpos()).manhattanLength();
+                    if (distance_from_splash <= isplash_distance) {
 
-                    en->m_health -= qRound((qreal)(distance_from_splash / isplash_distance) * isplash_damage);
+                        en->m_health -= qRound((qreal)(distance_from_splash / isplash_distance) * isplash_damage);
 
+                    }
                 }
-            }
-            if (en->m_health <= 0) {
-                if (en->m_entity->m_path->m_nodes.count() > 0) {
-                    m_game->award_defenders(m_game->m_level * 2);
-                    en->m_entity->m_path->clear_path();
+                if (en->m_health <= 0) {
+                    if (en->m_entity->m_path->m_nodes.count() > 0) {
+                        m_game->award_defenders(m_game->m_level * 2);
+                        en->m_entity->m_path->clear_path();
+                    }
                 }
             }
         }
@@ -775,6 +787,25 @@ QList<Tile *> Board::find_neighbors(Tile *i_tile)
                 }
             }
         }
+    }
+    return rv;
+}
+
+QString Board::serialize()
+{
+    QString rv;
+    QHash<int, QObject*>::const_iterator u = this->db_tiles.constBegin();
+    while (u != db_tiles.constEnd()) {
+        Gun* gu = this->find_gun(getRow(u.key()), getCol(u.key()));
+        if (gu) {
+            rv.append(gu->serialize());
+        }
+        Square* sq = this->find_square(getRow(u.key()), getCol(u.key()));
+        if (sq) {
+           rv.append(sq->serialize());
+        }
+
+        u++;
     }
     return rv;
 }

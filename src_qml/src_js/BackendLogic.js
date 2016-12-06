@@ -119,10 +119,12 @@ function show_gunStore(is_shown) {
     gunStore.enabled = is_shown;
 }
 
-function show_upgradeStore(is_shown, i_damage, i_range) {
+function show_upgradeStore(is_shown, i_damage, i_range, i_rate, i_reload) {
     upgradeStore.visible = is_shown;
     upgradeStore.enabled = is_shown;
     upgradeStore.i_damage = i_damage;
     upgradeStore.i_range = i_range;
+    upgradeStore.i_rate = i_rate;
+    upgradeStore.i_reload = i_reload;
 
 }

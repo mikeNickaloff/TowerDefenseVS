@@ -27,7 +27,7 @@ Item {
         NumberAnimation { duration: rootItem.life }
     }
     signal done_with_item()
-    signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy)
+    signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy, var iguntype)
     Timer {
         interval: rootItem.life
         running: true
@@ -35,7 +35,7 @@ Item {
         onTriggered: {
             object_done_timer.start();
 
-            rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy);
+            rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy, 2);
             create_impact();
         }
     }

@@ -16,9 +16,10 @@ Game::Game(QObject *parent) : QObject(parent)
     m_level = 1;
     p1 = new Player(this, true);
     p2 = new Player(this, false);
+    human = p1;
     m_money = 10000;
-    p1->m_money = 10000;
-    p2->m_money = 10000;
+    p1->m_money = 4000;
+    p2->m_money = 4000;
     p1->m_health = 10;
     p2->m_health = 10;
     this->m_props = new PropertySheet(this);

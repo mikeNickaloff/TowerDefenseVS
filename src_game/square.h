@@ -14,6 +14,7 @@ public:
     ~Square();
     Tile* m_tile;  // pointer to Tile object
     bool m_selected;
+    QString serialize();
 signals:
     void tileChanged(Tile* newTile);
     void going_to_delete();

@@ -5,7 +5,7 @@ TileTemplate {
     property int gun_type: 1
 
 
-    signal signal_shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy)
+    signal signal_shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy, var iguntype)
     color: "black"
     border.color: "#f9f0f0"
     border.width: 2

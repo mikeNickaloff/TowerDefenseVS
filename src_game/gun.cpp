@@ -33,6 +33,13 @@ QPoint Gun::midpoint(QPoint pt1, QPoint pt2)
     return rv;
 }
 
+QString Gun::serialize()
+{
+    QString rv;
+    rv.append(QString("|gun=range:%1,rate:%2,reload_time:%3,damage:%4,splash_damage:%5,splash_distance:%6,tile:%7").arg(m_range).arg(m_rate).arg(this->m_reload_time).arg(this->m_damage).arg(this->m_splash_damage).arg(this->m_splash_distance).arg(this->m_tile->serialize()));
+    return rv;
+}
+
 void Gun::slot_erase()
 {
     emit this->going_to_delete();

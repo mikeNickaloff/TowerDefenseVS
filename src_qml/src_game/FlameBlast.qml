@@ -27,7 +27,7 @@ Item {
         NumberAnimation { duration: rootItem.life * 3 }
     }
     signal done_with_item()
-    signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy)
+    signal shell_explode(var isplash_distance, var isplash_damage, var idamage, var ix, var iy, var iguntype)
     Timer {
         interval: rootItem.life * 2
         running: true
@@ -35,7 +35,7 @@ Item {
         onTriggered: {
             object_done_timer.start();
 
-            rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy);
+            rootItem.shell_explode(rootItem.splash_distance, rootItem.splash_damage, rootItem.damage, rootItem.globx, rootItem.globy, 3);
             create_impact();
         }
     }
@@ -78,7 +78,7 @@ Item {
         height: 5
         enabled: true
         group: "flamer"
-        emitRate: 25
+        emitRate: 15
         maximumEmitted: 8
         startTime: 0
         lifeSpan: 300
